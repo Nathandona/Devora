@@ -1,0 +1,27 @@
+# {{ project_name }}
+
+{% if description %}
+{{ description }}
+{% endif %}
+
+## Installation
+
+```bash
+git clone <repository-url>
+cd {{ project_slug }}
+cargo build --release
+```
+
+## Usage
+
+```bash
+cargo run
+```
+
+## License
+
+{% if license %}
+This project is licensed under the {{ license }} License.
+{% else %}
+This project is licensed under the MIT License.
+{% endif %}

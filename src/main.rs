@@ -1,14 +1,8 @@
 use clap::Parser;
-use devora_cli::{cli::Cli, logger, result::Result};
+use devora::{Cli, run};
 
 #[tokio::main]
-async fn main() -> Result<()> {
-    // Initialize logging early
-    logger::init();
-
-    // Parse command line arguments
+async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
-
-    // Execute the command
-    cli.run().await
+    run(cli).await
 }

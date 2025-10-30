@@ -1,0 +1,18 @@
+[framework]
+id = "base"
+name = "Base"
+version = "1.0.0"
+description = "Basic Rust project structure"
+
+[variables]
+description = { description = "Project description", required = false }
+license = { description = "Project license", default = "MIT", required = false }
+
+[[post_hooks]]
+command = "cargo fmt"
+description = "Format code"
+
+init_commands = [
+    "cargo run",
+    "cargo build"
+]

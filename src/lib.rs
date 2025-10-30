@@ -1,19 +1,16 @@
-//! Devora - A modern developer tool for C++ projects
-//!
-//! Inspired by Vite, Devora provides instant project scaffolding, fast incremental builds,
-//! and live reload capabilities for C++ projects using Meson + Ninja.
-
 pub mod cli;
-pub mod config;
-pub mod dependencies;
-pub mod logger;
-pub mod result;
-
-// Core modules
-pub mod build;
-pub mod create;
-pub mod dev;
-pub mod lint;
-pub mod template;
-pub mod test;
+pub mod core;
+pub mod models;
+pub mod error;
 pub mod utils;
+pub mod commands;
+
+pub use cli::Cli;
+
+pub async fn run(cli: Cli) -> anyhow::Result<()> {
+    match cli.command {
+        cli::Commands::New(args) => commands::new::execute(args).await.map_err(Into::into),
+        cli::Commands::List(args) => commands::list::execute(args).await.map_err(Into::into),
+        cli::Commands::Info(args) => commands::info::execute(args).await.map_err(Into::into),
+    }
+}

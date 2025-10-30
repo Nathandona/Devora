@@ -1,0 +1,25 @@
+{% if framework == "clap" %}
+use clap::Parser;
+
+#[derive(Parser)]
+#[command(name = "{{ project_slug }}")]
+#[command(about = "{{ project_name }}")]
+{% if description %}
+#[command(long_about = "{{ description }}")]
+{% endif %}
+struct Cli {
+    /// Name of the person to greet
+    #[arg(short, long)]
+    name: String,
+}
+
+fn main() {
+    let cli = Cli::parse();
+
+    println!("Hello, {}!", cli.name);
+}
+{% else %}
+fn main() {
+    println!("Hello, world!");
+}
+{% endif %}

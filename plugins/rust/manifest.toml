@@ -1,0 +1,8 @@
+[language]
+id = "rust"
+name = "Rust"
+version = "1.0.0"
+description = "The Rust Programming Language"
+
+default_framework = "base"
+frameworks = ["base", "clap", "axum"]

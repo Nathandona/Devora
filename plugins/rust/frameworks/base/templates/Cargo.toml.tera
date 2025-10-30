@@ -1,0 +1,18 @@
+[package]
+name = "{{ project_slug }}"
+version = "0.1.0"
+edition = "2021"
+{% if author %}
+authors = ["{{ author }}{% if email %} <{{ email }}>{% endif %}"]
+{% endif %}
+{% if description %}
+description = "{{ description }}"
+{% endif %}
+{% if license %}
+license = "{{ license }}"
+{% endif %}
+
+[dependencies]
+{% if framework == "clap" %}
+clap = { version = "4.4", features = ["derive"] }
+{% endif %}
