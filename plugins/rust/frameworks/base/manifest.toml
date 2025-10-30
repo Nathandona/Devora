@@ -7,10 +7,22 @@ description = "Basic Rust project structure"
 [variables]
 description = { description = "Project description", required = false }
 license = { description = "Project license", default = "MIT", required = false }
+include_tests = { description = "Include test files and setup", default = true, required = false }
+initialize_git = { description = "Initialize git repository", default = true, required = false }
 
 [[post_hooks]]
 command = "cargo fmt"
 description = "Format code"
+
+[[post_hooks]]
+command = "devora_git_init"
+description = "Initialize git repository"
+condition = "initialize_git == true"
+
+[[conditional_files]]
+path = "src/tests.rs"
+condition = "include_tests == true"
+description = "Include test module when tests are enabled"
 
 init_commands = [
     "cargo run",

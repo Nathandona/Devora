@@ -69,10 +69,12 @@ impl PluginRegistry {
         let manifest_path = lang_dir.join("manifest.toml");
         let content = fs::read_to_string(&manifest_path)?;
 
-        toml::from_str(&content).map_err(|e| DevoraError::InvalidManifest {
+        let manifest: LanguageManifest = toml::from_str(&content).map_err(|e| DevoraError::InvalidManifest {
             file: manifest_path.to_string_lossy().to_string(),
             details: e.to_string(),
-        })
+        })?;
+
+        Ok(manifest)
     }
 
     fn load_framework_manifest(&self, framework_dir: &Path) -> Result<FrameworkManifest> {

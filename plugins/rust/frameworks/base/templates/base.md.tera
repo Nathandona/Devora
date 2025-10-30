@@ -1,0 +1,44 @@
+{% include "partials/header.md" %}
+
+{% block extra_header %}{% endblock %}
+
+{% block installation %}
+## Installation
+
+```bash
+git clone <repository-url>
+cd {{ project_slug }}
+cargo build --release
+```
+{% endblock %}
+
+{% block usage %}
+## Usage
+
+```bash
+cargo run
+```
+{% endblock %}
+
+{% block development %}
+## Development
+
+```bash
+cargo build
+cargo test
+```
+{% endblock %}
+
+{% block license %}
+## License
+
+{% if license %}
+This project is licensed under the {{ license }} License.
+{% else %}
+This project is licensed under the MIT License.
+{% endif %}
+{% endblock %}
+
+{% include "partials/footer.md" %}
+
+{% block extra_footer %}{% endblock %}

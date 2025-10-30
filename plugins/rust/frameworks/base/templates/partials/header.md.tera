@@ -1,0 +1,7 @@
+# {{ project_name }}
+
+{% if description %}
+{{ description }}
+{% endif %}
+
+> Generated with Devora - {{ date }}

@@ -45,6 +45,7 @@ pub async fn execute(args: NewArgs) -> Result<()> {
         println!("🔍 Dry run mode - no files will be created");
     }
 
+    
     // Build context
     let context_builder = ContextBuilder::new();
     let mut provided_vars = HashMap::new();
@@ -85,19 +86,26 @@ pub async fn execute(args: NewArgs) -> Result<()> {
 
     if !args.dry_run {
         ensure_dir_exists(&output_path)?;
+
+        // Execute pre-generation hooks
+        if let Some(hooks) = &framework_manifest.pre_hooks {
+            println!("🔧 Running pre-generation hooks...");
+            generator.execute_hooks(hooks, &output_path, &context)?;
+        }
     }
 
     generator.generate_project(
         &templates_dir,
         &output_path,
         &context,
+        &framework_manifest.conditional_files.as_deref().unwrap_or(&[]),
         args.dry_run,
     )?;
 
     // Execute post-generation hooks
     if !args.dry_run {
         if let Some(hooks) = &framework_manifest.post_hooks {
-            generator.execute_hooks(hooks, &output_path)?;
+            generator.execute_hooks(hooks, &output_path, &context)?;
         }
     }
 

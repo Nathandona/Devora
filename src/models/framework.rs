@@ -9,6 +9,7 @@ pub struct FrameworkManifest {
     pub post_hooks: Option<Vec<Hook>>,
     pub requirements: Option<Vec<String>>,
     pub init_commands: Option<Vec<String>>,
+    pub conditional_files: Option<Vec<ConditionalFile>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -44,4 +45,11 @@ pub struct ValidationRule {
     pub min_length: Option<usize>,
     pub max_length: Option<usize>,
     pub allowed_values: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ConditionalFile {
+    pub path: String,
+    pub condition: String,
+    pub description: Option<String>,
 }
