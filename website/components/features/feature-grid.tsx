@@ -12,10 +12,6 @@ import { Sparkles, Zap, Shield } from 'lucide-react';
 export function FeatureGrid() {
   return (
     <section id="features" className="relative py-24 px-4 overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5" />
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-3xl" />
 
       <div className="container max-w-7xl mx-auto relative">
         {/* Section Header */}
