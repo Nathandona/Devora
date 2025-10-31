@@ -26,23 +26,12 @@ export function FeatureGrid() {
           variants={staggerChildren}
           className="text-center space-y-6 mb-20"
         >
-          <motion.div
-            variants={fadeInUp}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20"
-          >
-            <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium text-primary">Core Features</span>
-          </motion.div>
 
           <motion.h2
             variants={fadeInUp}
-            className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight bg-gradient-to-br from-foreground via-foreground/90 to-foreground/70 bg-clip-text text-transparent"
+            className="text-3xl md:text-5xl font-bold tracking-tight"
           >
-            Built for
-            <br />
-            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Modern Developers
-            </span>
+            Built for Developers, by Developers
           </motion.h2>
 
           <motion.p
