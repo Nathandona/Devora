@@ -89,7 +89,6 @@ build/
 *.map
 
 # Generated files
-*.lock
 *.log
 *.tmp
 *.temp
