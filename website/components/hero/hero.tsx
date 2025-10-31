@@ -1,21 +1,22 @@
 'use client';
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { toast } from 'sonner';
 import { Typewriter } from './typewriter';
 import { TerminalAnimation } from './terminal-animation';
 import { INSTALL_COMMAND, GITHUB_URL, DOCS_URL } from '@/lib/constants';
 import { Copy, ExternalLink, Github, BookOpen, Terminal } from 'lucide-react';
 
 export function Hero() {
-  const [copied, setCopied] = useState(false);
-
   const copyToClipboard = async () => {
-    await navigator.clipboard.writeText(INSTALL_COMMAND);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(INSTALL_COMMAND);
+      toast.success('Command copied to clipboard!');
+    } catch (error) {
+      toast.error('Failed to copy command to clipboard');
+    }
   };
 
   return (
@@ -91,11 +92,6 @@ export function Hero() {
                   <Copy className="w-4 h-4" />
                 </Button>
               </div>
-              {copied && (
-                <p className="text-sm text-green-500 animate-slide-up">
-                  Copied to clipboard!
-                </p>
-              )}
             </div>
           </div>
 

@@ -5,13 +5,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
 import { DEMO_COMMANDS } from '@/lib/constants';
 import {
   Terminal,
   Play,
   RotateCcw,
   Copy,
-  CheckCircle2,
   Loader2
 } from 'lucide-react';
 
@@ -20,7 +20,6 @@ export function LiveTerminal() {
   const [isRunning, setIsRunning] = useState(false);
   const [currentOutput, setCurrentOutput] = useState<string[]>([]);
   const [currentLine, setCurrentLine] = useState('');
-  const [copied, setCopied] = useState(false);
   const outputRef = useRef<HTMLDivElement>(null);
 
   const command = DEMO_COMMANDS[selectedCommand];
@@ -70,9 +69,12 @@ export function LiveTerminal() {
   };
 
   const copyCommand = async () => {
-    await navigator.clipboard.writeText(command.command);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(command.command);
+      toast.success('Command copied to clipboard!');
+    } catch (error) {
+      toast.error('Failed to copy command to clipboard');
+    }
   };
 
   // Auto-scroll to bottom
@@ -148,11 +150,7 @@ export function LiveTerminal() {
                   disabled={isRunning}
                   className="h-8 px-2"
                 >
-                  {copied ? (
-                    <CheckCircle2 className="w-4 h-4 text-green-400" />
-                  ) : (
-                    <Copy className="w-4 h-4" />
-                  )}
+                  <Copy className="w-4 h-4" />
                 </Button>
 
                 <Button
