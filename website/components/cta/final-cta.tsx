@@ -3,18 +3,19 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
 import { fadeInUp, scaleIn } from '@/lib/animations';
 import { INSTALL_COMMAND, GITHUB_URL } from '@/lib/constants';
-import { Terminal, ArrowRight, Copy, CheckCircle2, Sparkles } from 'lucide-react';
-import { useState } from 'react';
+import { Terminal, ArrowRight, Copy, Sparkles } from 'lucide-react';
 
 export function FinalCTA() {
-  const [copied, setCopied] = useState(false);
-
   const copyToClipboard = async () => {
-    await navigator.clipboard.writeText(INSTALL_COMMAND);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(INSTALL_COMMAND);
+      toast.success('Command copied to clipboard!');
+    } catch (error) {
+      toast.error('Failed to copy command to clipboard');
+    }
   };
 
   return (
@@ -58,13 +59,6 @@ export function FinalCTA() {
           variants={fadeInUp}
           className="text-center space-y-8"
         >
-          {/* Badge */}
-          <motion.div variants={scaleIn}>
-            <Badge className="bg-primary/10 text-primary border-primary/20 px-4 py-2">
-              <Sparkles className="w-4 h-4 mr-2" />
-              Ready to get started?
-            </Badge>
-          </motion.div>
 
           {/* Main Headline */}
           <motion.h2
@@ -73,7 +67,7 @@ export function FinalCTA() {
           >
             Stop copy-pasting.
             <br />
-            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
               Start creating.
             </span>
           </motion.h2>
@@ -108,25 +102,9 @@ export function FinalCTA() {
                   onClick={copyToClipboard}
                   className="h-8 px-3 hover:bg-accent/50 text-muted-foreground hover:text-foreground"
                 >
-                  {copied ? (
-                    <CheckCircle2 className="w-4 h-4 text-green-500" />
-                  ) : (
-                    <Copy className="w-4 h-4" />
-                  )}
+                  <Copy className="w-4 h-4" />
                 </Button>
               </div>
-
-              {copied && (
-                <motion.div
-                  initial={{ opacity: 0, y: -5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -5 }}
-                  className="text-sm text-green-500 flex items-center justify-center gap-2"
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                  Command copied to clipboard!
-                </motion.div>
-              )}
             </div>
           </motion.div>
 

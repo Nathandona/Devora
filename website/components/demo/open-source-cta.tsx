@@ -29,8 +29,8 @@ const contributors = [
 
 export function OpenSourceCTA() {
   const stats = {
-    stars: 48,
-    forks: 12,
+    stars: 1,
+    forks: 0,
     contributors: contributors.length,
   };
 
