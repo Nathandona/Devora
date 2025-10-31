@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  devora:
+    image: ghcr.io/Nathandona/devora:latest-debian
+    container_name: devora
+    volumes:
+      - ./:/workspace
+      - devora-cache:/home/devora/.cache
+      - devora-cargo:/home/devora/.cargo
+    working_dir: /workspace
+    environment:
+      - RUST_LOG=info
+      - DEVORA_PLUGINS_DIR=/usr/local/lib/devora/plugins
+      - HOME=/workspace
+    command: ["--help"]
+    stdin_open: true
+    tty: true
+    networks:
+      - devora-network
+
+  devora-alpine:
+    image: ghcr.io/Nathandona/devora:latest-alpine
+    container_name: devora-alpine
+    volumes:
+      - ./:/workspace
+    working_dir: /workspace
+    environment:
+      - RUST_LOG=info
+      - DEVORA_PLUGINS_DIR=/usr/local/lib/devora/plugins
+    command: ["--help"]
+    profiles:
+      - alpine
+    networks:
+      - devora-network
+
+volumes:
+  devora-cache:
+    driver: local
+  devora-cargo:
+    driver: local
+
+networks:
+  devora-network:
+    driver: bridge

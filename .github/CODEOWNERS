@@ -1,0 +1,25 @@
+# Codeowners file for Devora
+# This file defines who owns which files in the repository
+
+# Default owners for the entire repository
+* @Nathandona
+
+# Core code ownership
+src/ @Nathandona
+tests/ @Nathandona
+scripts/ @Nathandona
+
+# CI/CD and DevOps
+.github/ @Nathandona
+docker/ @Nathandona
+
+# Plugin system
+plugins/ @Nathandona
+
+# Documentation
+README.md @Nathandona
+docs/ @Nathandona
+
+# Configuration files
+Cargo.toml @Nathandona
+Cargo.lock @Nathandona

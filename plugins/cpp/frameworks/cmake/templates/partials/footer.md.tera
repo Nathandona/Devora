@@ -30,7 +30,7 @@
 
 ## Generated with Devora
 
-This project was generated using [Devora](https://github.com/your-username/devora), the universal project scaffolding framework.
+This project was generated using [Devora](https://github.com/Nathandona/devora), the universal project scaffolding framework.
 
 Generated on: {{ date }}
 Author: {{ author | default(value = "Unknown") }}

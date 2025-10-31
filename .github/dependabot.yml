@@ -1,0 +1,105 @@
+# Dependabot configuration for Devora
+# Automatically updates dependencies and creates pull requests
+
+version: 2
+updates:
+
+  # Update Rust dependencies
+  - package-ecosystem: "cargo"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "Nathandona"
+    assignees:
+      - "Nathandona"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "rust"
+    groups:
+      # Group production dependencies together
+      production-dependencies:
+        dependency-type: "production"
+        update-types:
+          - "version-update:semver-patch"
+          - "version-update:semver-minor"
+      # Group development dependencies together
+      development-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "version-update:semver-patch"
+          - "version-update:semver-minor"
+
+  # Update GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:30"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "Nathandona"
+    assignees:
+      - "Nathandona"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+
+  # Update Docker base images
+  - package-ecosystem: "docker"
+    directory: "/docker"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "08:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "Nathandona"
+    assignees:
+      - "Nathandona"
+    commit-message:
+      prefix: "docker"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "docker"
+
+# Configuration for security updates
+registries:
+  # Allow updates from crates.io
+  crates-io:
+    type: "cargo-registry"
+    url: "https://github.com/rust-lang/crates.io-index"
+    replaces-base: true
+
+# Auto-merge configuration
+enable-auto-merge: false
+# You can enable this once you have sufficient testing and confidence:
+# enable-auto-merge: true
+# auto-merge-labels: ["auto-merge"]
+
+# Additional configuration
+ignore:
+  # Ignore major version updates for critical dependencies
+  - dependency-name: "tokio"
+    update-types: ["version-update:semver-major"]
+  - dependency-name: "serde"
+    update-types: ["version-update:semver-major"]
+  - dependency-name: "clap"
+    update-types: ["version-update:semver-major"]
+  - dependency-name: "tera"
+    update-types: ["version-update:semver-major"]

@@ -1,0 +1,17 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentation
+    url: https://github.com/Nathandona/Devora#readme
+    about: Check the documentation for usage information
+  - name: 💬 Discussions
+    url: https://github.com/Nathandona/Devora/discussions
+    about: Use GitHub Discussions for questions and ideas
+  - name: 🐛 Bug Report
+    url: https://github.com/Nathandona/Devora/issues/new?assignees=&labels=bug&template=bug_report.md
+    about: Report a bug or unexpected behavior
+  - name: ✨ Feature Request
+    url: https://github.com/Nathandona/Devora/issues/new?assignees=&labels=enhancement&template=feature_request.md
+    about: Suggest a new feature or improvement
+  - name: 🔌 Plugin Request
+    url: https://github.com/Nathandona/Devora/issues/new?assignees=&labels=plugin%2Cenhancement&template=plugin_request.md
+    about: Request support for a new programming language or framework

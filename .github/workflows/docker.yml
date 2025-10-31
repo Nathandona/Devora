@@ -1,0 +1,236 @@
+name: Docker
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'docker/**'
+      - 'Dockerfile*'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'src/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'docker/**'
+      - 'Dockerfile*'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'src/**'
+  schedule:
+    # Run weekly on Sundays at 2 AM UTC to check for base image updates
+    - cron: '0 2 * * 0'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  detect-changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      docker-changed: ${{ steps.changes.outputs.docker }}
+      src-changed: ${{ steps.changes.outputs.src }}
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 2
+
+    - name: Check for file changes
+      uses: dorny/paths-filter@v2
+      id: changes
+      with:
+        filters: |
+          docker:
+            - 'docker/**'
+            - 'Dockerfile*'
+          src:
+            - 'Cargo.toml'
+            - 'Cargo.lock'
+            - 'src/**'
+
+  build-matrix:
+    name: Build Matrix
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.docker-changed == 'true' || needs.detect-changes.outputs.src-changed == 'true' || github.event_name == 'schedule'
+    strategy:
+      matrix:
+        variant: [alpine, debian]
+        include:
+          - variant: alpine
+            dockerfile: docker/Dockerfile.alpine
+            platforms: linux/amd64,linux/arm64
+            tags: |
+              type=ref,event=branch,suffix=-alpine
+              type=ref,event=pr,suffix=-alpine
+              type=raw,value=latest-alpine,enable={{is_default_branch}}
+          - variant: debian
+            dockerfile: docker/Dockerfile.debian
+            platforms: linux/amd64,linux/arm64
+            tags: |
+              type=ref,event=branch,suffix=-debian
+              type=ref,event=pr,suffix=-debian
+              type=raw,value=latest-debian,enable={{is_default_branch}}
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Container Registry
+      if: github.event_name != 'pull_request'
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: ${{ matrix.tags }}
+        flavor: |
+          latest=false
+
+    - name: Build and test Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ${{ matrix.dockerfile }}
+        platforms: ${{ matrix.platforms }}
+        push: false
+        load: true
+        tags: ${{ env.IMAGE_NAME }}-${{ matrix.variant }}:test
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Test Docker image
+      run: |
+        echo "Testing ${{ matrix.variant }} variant..."
+        docker run --rm ${{ env.IMAGE_NAME }}-${{ matrix.variant }}:test --version
+        docker run --rm ${{ env.IMAGE_NAME }}-${{ matrix.variant }}:test --help
+        docker run --rm -v $(pwd):/workspace ${{ env.IMAGE_NAME }}-${{ matrix.variant }}:test list
+
+    - name: Build and push Docker image
+      if: github.event_name != 'pull_request'
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ${{ matrix.dockerfile }}
+        platforms: ${{ matrix.platforms }}
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  build-multi-arch:
+    name: Build Multi-Architecture Image
+    runs-on: ubuntu-latest
+    needs: [detect-changes, build-matrix]
+    if: github.ref == 'refs/heads/main' && (needs.detect-changes.outputs.docker-changed == 'true' || needs.detect-changes.outputs.src-changed == 'true')
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Create and push multi-arch manifest
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: docker/Dockerfile.debian
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: build-matrix
+    if: always() && needs.build-matrix.result == 'success'
+    strategy:
+      matrix:
+        variant: [alpine, debian]
+    steps:
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main-${{ matrix.variant }}
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  size-report:
+    name: Image Size Report
+    runs-on: ubuntu-latest
+    needs: build-matrix
+    if: always() && needs.build-matrix.result == 'success'
+    strategy:
+      matrix:
+        variant: [alpine, debian]
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Pull and analyze image
+      run: |
+        docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main-${{ matrix.variant }}
+
+        # Get image size
+        size=$(docker images ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main-${{ matrix.variant }} --format "{{.Size}}")
+        echo "Image size: $size"
+
+        # Get image layers
+        echo "Image layers:"
+        docker history ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main-${{ matrix.variant }} --format "table {{.CreatedBy}}\t{{.Size}}"
+
+        # Check for optimizations
+        echo "Checking for optimization opportunities..."
+        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+          wagoodman/dive:latest ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main-${{ matrix.variant }} --ci || true
+
+  update-docker-readme:
+    name: Update Docker Hub README
+    runs-on: ubuntu-latest
+    needs: build-multi-arch
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - name: Update Docker Hub README
+      uses: peter-evans/dockerhub-description@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        repository: ${{ secrets.DOCKER_USERNAME }}/devora
+        readme-filepath: ./docker/README.md

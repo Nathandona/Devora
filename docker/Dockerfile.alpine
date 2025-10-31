@@ -1,0 +1,85 @@
+# Alpine Linux based Dockerfile for Devora
+# Multi-stage build for smaller final image
+
+# Build stage
+FROM rust:1.75-alpine AS builder
+
+# Install build dependencies
+RUN apk add --no-cache \
+    musl-dev \
+    pkgconfig \
+    openssl-dev \
+    openssl-libs-static
+
+# Set working directory
+WORKDIR /app
+
+# Copy cargo files
+COPY Cargo.toml Cargo.lock ./
+
+# Create dummy main.rs to cache dependencies
+RUN mkdir src && \
+    echo "fn main() {}" > src/main.rs && \
+    cargo fetch && \
+    rm -rf src
+
+# Copy source code
+COPY src ./src
+
+# Build the application
+RUN cargo build --release --target x86_64-unknown-linux-musl
+
+# Runtime stage
+FROM alpine:3.19
+
+# Install runtime dependencies
+RUN apk add --no-cache \
+    ca-certificates \
+    git \
+    cmake \
+    make \
+    g++ \
+    pkgconfig \
+    openssl-dev
+
+# Create non-root user
+RUN addgroup -g 1001 devora && \
+    adduser -D -s /bin/sh -u 1001 -G devora devora
+
+# Set working directory
+WORKDIR /workspace
+
+# Copy binary from builder stage
+COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/devora /usr/local/bin/
+
+# Copy plugins directory
+COPY plugins /usr/local/lib/devora/plugins
+
+# Set permissions
+RUN chown -R devora:devora /workspace /usr/local/lib/devora
+
+# Switch to non-root user
+USER devora
+
+# Create volumes for workspace and plugins
+VOLUME ["/workspace"]
+
+# Set environment variables
+ENV RUST_LOG=info
+ENV DEVORA_PLUGINS_DIR=/usr/local/lib/devora/plugins
+
+# Add entrypoint
+ENTRYPOINT ["devora"]
+CMD ["--help"]
+
+# Labels
+LABEL maintainer="Nathan Babcock <nathan.r.babcock@gmail.com>"
+LABEL description="Devora - Universal project scaffolding framework"
+LABEL version="0.1.0"
+LABEL org.opencontainers.image.title="Devora"
+LABEL org.opencontainers.image.description="A universal, modular project scaffolding framework"
+LABEL org.opencontainers.image.url="https://github.com/Nathandona/Devora"
+LABEL org.opencontainers.image.source="https://github.com/Nathandona/Devora"
+LABEL org.opencontainers.image.version="0.1.0"
+LABEL org.opencontainers.image.revision=$VCS_REF
+LABEL org.opencontainers.image.created=$BUILD_DATE

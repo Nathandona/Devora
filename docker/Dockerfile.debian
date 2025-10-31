@@ -1,0 +1,99 @@
+# Debian based Dockerfile for Devora
+# Multi-stage build for optimal size and security
+
+# Build stage
+FROM rust:1.75-slim AS builder
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    pkg-config \
+    libssl-dev \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy cargo files
+COPY Cargo.toml Cargo.lock ./
+
+# Create dummy main.rs to cache dependencies
+RUN mkdir src && \
+    echo "fn main() {}" > src/main.rs && \
+    cargo fetch && \
+    rm -rf src
+
+# Copy source code
+COPY src ./src
+
+# Build the application
+RUN cargo build --release
+
+# Runtime stage
+FROM debian:bookworm-slim
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    git \
+    cmake \
+    build-essential \
+    pkg-config \
+    libssl-dev \
+    libgit2-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Create non-root user
+RUN groupadd -r devora && \
+    useradd -r -g devora -d /workspace -s /bin/bash devora
+
+# Set working directory
+WORKDIR /workspace
+
+# Copy binary from builder stage
+COPY --from=builder /app/target/release/devora /usr/local/bin/
+
+# Copy plugins directory
+COPY plugins /usr/local/lib/devora/plugins
+
+# Copy shell completions
+COPY --from=builder /app/target/release/_devora /usr/share/zsh/site-functions/ 2>/dev/null || true
+RUN mkdir -p /usr/share/bash-completion/completions /usr/share/fish/completions
+COPY --from=builder /app/target/release/devora.bash /usr/share/bash-completion/completions/devora 2>/dev/null || true
+COPY --from=builder /app/target/release/devora.fish /usr/share/fish/completions/ 2>/dev/null || true
+
+# Set permissions
+RUN chown -R devora:devora /workspace /usr/local/lib/devora
+
+# Switch to non-root user
+USER devora
+
+# Create volumes for workspace and plugins
+VOLUME ["/workspace"]
+
+# Set environment variables
+ENV RUST_LOG=info
+ENV DEVORA_PLUGINS_DIR=/usr/local/lib/devora/plugins
+ENV HOME=/workspace
+
+# Add entrypoint
+ENTRYPOINT ["devora"]
+CMD ["--help"]
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD devora --version || exit 1
+
+# Labels
+LABEL maintainer="Nathan Babcock <nathan.r.babcock@gmail.com>"
+LABEL description="Devora - Universal project scaffolding framework"
+LABEL version="0.1.0"
+LABEL org.opencontainers.image.title="Devora"
+LABEL org.opencontainers.image.description="A universal, modular project scaffolding framework"
+LABEL org.opencontainers.image.url="https://github.com/Nathandona/Devora"
+LABEL org.opencontainers.image.source="https://github.com/Nathandona/Devora"
+LABEL org.opencontainers.image.version="0.1.0"
+LABEL org.opencontainers.image.revision=$VCS_REF
+LABEL org.opencontainers.image.created=$BUILD_DATE
+LABEL org.opencontainers.image.licenses="MIT"

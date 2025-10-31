@@ -2,10 +2,10 @@
 name = "devora"
 version = "0.1.0"
 edition = "2021"
-authors = ["Nathan Babcock <nathan.r.babcock@gmail.com>"]
+authors = ["Nathan Donadey <donadeyn@gmail.com>"]
 description = "A universal, modular project scaffolding framework"
 license = "MIT"
-repository = "https://github.com/nathanbabcock/Devora"
+repository = "https://github.com/Nathandona/Devora"
 keywords = ["cli", "scaffold", "template", "generator"]
 categories = ["command-line-utilities", "development-tools"]
 
@@ -43,6 +43,13 @@ git2 = "0.18"
 chrono = { version = "0.4", features = ["serde"] }
 regex = "1.10"
 shellexpand = "3.1"
+
+[dev-dependencies]
+tempfile = "3.8"
+assert_cmd = "2.0"
+predicates = "3.0"
+serde_json = "1.0"
+toml = "0.8"
 
 [[bin]]
 name = "devora"
