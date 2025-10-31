@@ -1,0 +1,30 @@
+## Building
+
+### Prerequisites
+- CMake 3.15 or higher
+- A C++17 (or higher) compatible compiler
+
+### Build Steps
+
+1. Configure the project:
+```bash
+cmake -B build -DCMAKE_BUILD_TYPE={{ build_type }}
+```
+
+2. Build the project:
+```bash
+cmake --build build --config {{ build_type }}
+```
+
+3. {% if project_type == "executable" %}Run the executable:
+```bash
+./build/{{ project_name | snake_case }}
+```{% else %}Use the library:
+The library will be built in `build/lib/` (or `build/` on Windows) and can be linked against other projects.{% endif %}
+
+### Build Types
+
+Available build types:
+- `Debug`: Debug build with no optimizations
+- `Release`: Optimized release build
+- `RelWithDebInfo`: Release build with debug information

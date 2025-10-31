@@ -1,0 +1,154 @@
+# {{ project_name | title_case }}
+
+{{ description | default(value = "A simple C++ project built with Makefile") }}
+
+## Features
+
+- **C++ Standard**: {{ cpp_standard }}
+- **Build System**: Makefile
+- **Project Type**: {{ project_type }}
+- **Compiler**: {{ compiler }}
+- **Build Type**: {{ build_type }}
+- **Testing**: {% if include_tests %}Enabled with simple assert-based tests{% else %}Disabled{% endif %}
+- **License**: {{ license }}
+
+## Prerequisites
+
+- A C++{{ cpp_standard | regex_replace(pat="C\\+\\+", repl="") }} compatible compiler ({{ compiler }})
+- GNU Make or compatible make utility
+
+## Building
+
+### Quick Start
+
+Build the project:
+```bash
+make
+```
+
+This will:
+1. Create necessary directories (`build/`, `bin/`)
+2. Compile source files
+3. Link the final target
+
+### Build Targets
+
+- `make` or `make all` - Build the project
+- `make clean` - Remove build artifacts
+- `make rebuild` - Clean and build
+- `make run` - Build and run (executables only)
+- `make install` - Install to system (/usr/local)
+{% if include_tests %}
+- `make test` - Build and run tests
+- `make run-tests` - Run tests (if already built)
+{% endif %}
+- `make help` - Show available targets
+- `make debug` - Show build configuration
+
+### Running
+
+{% if project_type == "executable" %}After building, run the executable:
+```bash
+make run
+# or directly:
+./bin/{{ project_name | snake_case }}
+```{% else %}This is a library project. After building:
+```bash
+make install  # Install to system
+```
+
+Then link against it in other projects:
+```bash
+g++ your_app.cpp -L/usr/local/lib -l{{ project_name | snake_case }} -I/usr/local/include
+```{% endif %}
+
+## Testing
+
+{% if include_tests %}
+This project includes simple assert-based tests.
+
+### Running Tests
+
+Build and run tests:
+```bash
+make test
+```
+
+Or run tests separately:
+```bash
+make test
+./bin/tests
+```
+
+### Test Structure
+
+- Test files are in `tests/`
+- Uses C++ `assert` for simple test cases
+- Tests are compiled separately from the main project
+{% else %}
+Testing is not enabled for this project. To enable testing, regenerate the project with `include_tests=true`.
+{% endif %}
+
+## Build Configuration
+
+You can modify build settings in the Makefile:
+
+- `CPP_STANDARD`: C++ standard (default: {{ cpp_standard | regex_replace(pat="C\\+\\+", repl="") }})
+- `BUILD_TYPE`: Debug or Release (default: {{ build_type }})
+- `COMPILER`: C++ compiler (default: {{ compiler }})
+
+Example debug build:
+```bash
+make BUILD_TYPE=Debug
+```
+
+## Project Structure
+
+```
+{{ project_name | snake_case }}/
+├── Makefile               # Build configuration
+├── README.md              # This file
+├── .gitignore             # Git ignore patterns
+├── src/                   # Source files
+│   ├── {% if project_type == "executable" %}main.cpp{% else %}{{ project_name | snake_case }}.cpp{% endif %}
+│   └── {{ project_name | snake_case }}.cpp
+├── include/               # Header files
+│   └── {{ project_name | snake_case }}.hpp
+{% if include_tests %}├── tests/                 # Test files
+│   └── test_main.cpp
+{% endif %}
+├── build/                 # Object files (generated)
+└── bin/                   # Executables/libraries (generated)
+```
+
+## Manual Compilation
+
+If you prefer not to use the Makefile:
+
+{% if project_type == "executable" %}
+```bash
+mkdir -p bin
+{{ compiler }} -std=c++{{ cpp_standard | regex_replace(pat="C\\+\\+", repl="") }} -Wall -Wextra -Iinclude src/main.cpp -o bin/{{ project_name | snake_case }}
+```
+{% else %}
+```bash
+mkdir -p build bin
+{{ compiler }} -std=c++{{ cpp_standard | regex_replace(pat="C\\+\\+", repl="") }} -Wall -Wextra -Iinclude -c src/{{ project_name | snake_case }}.cpp -o build/{{ project_name | snake_case }}.o
+{% if project_type == "static-lib" %}
+ar rcs bin/lib{{ project_name | snake_case }}.a build/{{ project_name | snake_case }}.o
+{% else %}
+{{ compiler }} -shared build/{{ project_name | snake_case }}.o -o bin/lib{{ project_name | snake_case }}.so
+{% endif %}
+```
+{% endif %}
+
+## License
+
+This project is licensed under the {{ license }} license.
+
+## Generated with Devora
+
+This project was generated using [Devora](https://github.com/your-username/devora), the universal project scaffolding framework.
+
+Generated on: {{ date }}
+Author: {{ author | default(value = "Unknown") }}

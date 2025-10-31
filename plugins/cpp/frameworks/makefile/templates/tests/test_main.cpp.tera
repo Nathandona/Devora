@@ -1,0 +1,37 @@
+#include <iostream>
+#include <cassert>
+{% if project_type != "executable" %}
+#include "{{ project_name | snake_case }}.hpp"
+{% endif %}
+
+using namespace {{ project_name | snake_case }};
+
+void test_addition() {
+    std::cout << "Testing addition..." << std::endl;
+    assert(add(2, 3) == 5);
+    assert(add(-1, 1) == 0);
+    assert(add(0, 0) == 0);
+    std::cout << "✓ Addition tests passed!" << std::endl;
+}
+
+{% if project_type != "executable" %}
+void test_multiplication() {
+    std::cout << "Testing multiplication..." << std::endl;
+    assert(multiply(2, 3) == 6);
+    assert(multiply(-1, 1) == -1);
+    assert(multiply(0, 5) == 0);
+    std::cout << "✓ Multiplication tests passed!" << std::endl;
+}
+{% endif %}
+
+int main() {
+    std::cout << "=== Running {{ project_name | title_case }} Tests ===" << std::endl;
+
+    test_addition();
+    {% if project_type != "executable" %}
+    test_multiplication();
+    {% endif %}
+
+    std::cout << "✓ All tests passed!" << std::endl;
+    return 0;
+}

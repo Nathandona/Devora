@@ -1,0 +1,166 @@
+#pragma once
+
+#ifndef {{ project_name | snake_case | upper }}_HPP
+#define {{ project_name | snake_case | upper }}_HPP
+
+#include <cstddef>
+#include <stdexcept>
+#include <string>
+#include <vector>
+{% if cpp_standard == "C++20" %}
+#include <concepts>
+#include <ranges>
+{% endif %}
+
+namespace {{ namespace_name | default(value = project_name | snake_case) }} {
+
+/**
+ * @brief A simple utility class for mathematical operations
+ */
+class Calculator {
+public:
+    /**
+     * @brief Adds two numbers
+     * @tparam T Numeric type
+     * @param a First operand
+     * @param b Second operand
+     * @return Sum of a and b
+     */
+{% if cpp_standard == "C++20" %}
+    template <std::integral T>
+{% else %}
+    template <typename T>
+{% endif %}
+    static constexpr T add(T a, T b) noexcept {
+        return a + b;
+    }
+
+    /**
+     * @brief Multiplies two numbers
+     * @tparam T Numeric type
+     * @param a First operand
+     * @param b Second operand
+     * @return Product of a and b
+     */
+{% if cpp_standard == "C++20" %}
+    template <std::integral T>
+{% else %}
+    template <typename T>
+{% endif %}
+    static constexpr T multiply(T a, T b) noexcept {
+        return a * b;
+    }
+
+    /**
+     * @brief Divides two numbers with bounds checking
+     * @tparam T Numeric type
+     * @param a Numerator
+     * @param b Denominator
+     * @return Quotient of a and b
+     * @throws std::invalid_argument if b is zero
+     */
+{% if cpp_standard == "C++20" %}
+    template <std::integral T>
+{% else %}
+    template <typename T>
+{% endif %}
+    static constexpr T divide(T a, T b) {
+        if (b == 0) {
+            throw std::invalid_argument("Division by zero");
+        }
+        return a / b;
+    }
+};
+
+/**
+ * @brief String utility functions
+ */
+namespace string_utils {
+
+/**
+ * @brief Splits a string by delimiter
+ * @param str Input string
+ * @param delimiter Delimiter character
+ * @return Vector of substrings
+ */
+inline std::vector<std::string> split(const std::string& str, char delimiter) {
+    std::vector<std::string> result;
+    std::string current;
+
+    for (char c : str) {
+        if (c == delimiter) {
+            result.push_back(current);
+            current.clear();
+        } else {
+            current += c;
+        }
+    }
+
+    result.push_back(current);
+    return result;
+}
+
+/**
+ * @brief Joins a vector of strings with delimiter
+ * @param parts Vector of strings
+ * @param delimiter Delimiter string
+ * @return Joined string
+ */
+inline std::string join(const std::vector<std::string>& parts, const std::string& delimiter) {
+    if (parts.empty()) {
+        return "";
+    }
+
+    std::string result = parts[0];
+    for (size_t i = 1; i < parts.size(); ++i) {
+        result += delimiter + parts[i];
+    }
+
+    return result;
+}
+
+{% if cpp_standard == "C++20" %}
+/**
+ * @brief Checks if a string contains a substring (C++20 version)
+ * @param str Input string
+ * @param substr Substring to search for
+ * @return true if substr is found in str
+ */
+constexpr bool contains(const std::string& str, const std::string_view substr) {
+    return str.find(substr) != std::string::npos;
+}
+{% endif %}
+
+} // namespace string_utils
+
+/**
+ * @brief Container utility functions
+ */
+namespace container_utils {
+
+/**
+ * @brief Checks if a container contains a value
+ * @tparam Container Container type
+ * @tparam Value Value type
+ * @param container Input container
+ * @param value Value to search for
+ * @return true if value is found in container
+ */
+{% if cpp_standard == "C++20" %}
+template <typename Container, typename Value>
+requires std::ranges::range<Container>
+constexpr bool contains(const Container& container, const Value& value) {
+    return std::ranges::find(container, value) != std::ranges::end(container);
+}
+{% else %}
+template <typename Container, typename Value>
+bool contains(const Container& container, const Value& value) {
+    return std::find(container.begin(), container.end(), value) != container.end();
+}
+{% endif %}
+
+} // namespace container_utils
+
+} // namespace {{ namespace_name | default(value = project_name | snake_case) }}
+
+#endif // {{ project_name | snake_case | upper }}_HPP

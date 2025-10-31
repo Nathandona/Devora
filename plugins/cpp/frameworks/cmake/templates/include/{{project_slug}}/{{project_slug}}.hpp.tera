@@ -1,0 +1,18 @@
+#pragma once
+
+#ifndef {{ project_slug | upper }}_HPP
+#define {{ project_slug | upper }}_HPP
+
+namespace {{ project_name }} {
+
+/**
+ * @brief Adds two integers
+ * @param a First integer
+ * @param b Second integer
+ * @return Sum of a and b
+ */
+int add(int a, int b);
+
+} // namespace {{ project_name }}
+
+#endif // {{ project_slug | upper }}_HPP

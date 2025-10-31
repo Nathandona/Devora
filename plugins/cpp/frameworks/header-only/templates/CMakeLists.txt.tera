@@ -1,0 +1,118 @@
+cmake_minimum_required(VERSION 3.15)
+
+project({{ project_name | title_case }}
+    VERSION 1.0.0
+    DESCRIPTION "{{ description | default(value = "A header-only C++ library") }}"
+    LANGUAGES CXX)
+
+# Set C++ standard
+set(CMAKE_CXX_STANDARD {{ cpp_standard | regex_replace(pat="C\\+\\+", repl="") }})
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Header-only library interface
+add_library({{ project_name | snake_case }} INTERFACE)
+
+# Include directories
+target_include_directories({{ project_name | snake_case }}
+    INTERFACE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
+)
+
+{% if use_modules and cpp_standard == "C++20" %}
+# C++20 modules support
+set(CMAKE_CXX_SCAN_FOR_MODULES ON)
+target_sources({{ project_name | snake_case }}
+    INTERFACE
+        FILE_SET CXX_MODULES FILES
+            include/{{ project_name | snake_case }}/module.cppm
+)
+{% endif %}
+
+# Compiler-specific options
+if(MSVC)
+    target_compile_options({{ project_name | snake_case }} INTERFACE /W4)
+else()
+    target_compile_options({{ project_name | snake_case }} INTERFACE -Wall -Wextra -Wpedantic)
+endif()
+
+{% if include_tests %}
+# Enable testing
+enable_testing()
+
+# Find Catch2
+find_package(Catch2 QUIET)
+if(NOT Catch2_FOUND)
+    include(FetchContent)
+    FetchContent_Declare(
+        Catch2
+        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+        GIT_TAG        v3.4.0
+    )
+    FetchContent_MakeAvailable(Catch2)
+endif()
+
+# Test executable
+add_executable(tests)
+target_sources(tests
+    PRIVATE
+        tests/test_main.cpp
+)
+
+target_link_libraries(tests
+    PRIVATE
+        Catch2::Catch2WithMain
+        {{ project_name | snake_case }}
+)
+
+# Add tests
+add_test(NAME AllTests COMMAND tests)
+
+{% endif %}
+
+# Installation
+install(TARGETS {{ project_name | snake_case }}
+    EXPORT {{ project_name | title_case }}Targets
+    INCLUDES DESTINATION include
+)
+
+install(DIRECTORY include/
+    DESTINATION include
+)
+
+# Create and install config files
+include(CMakePackageConfigHelpers)
+
+install(EXPORT {{ project_name | title_case }}Targets
+    FILE {{ project_name | title_case }}Targets.cmake
+    NAMESPACE {{ project_name | title_case }}::
+    DESTINATION lib/cmake/{{ project_name | title_case }}
+)
+
+# Generate version file
+write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/{{ project_name | title_case }}ConfigVersion.cmake"
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMajorVersion
+)
+
+# Generate config file
+configure_package_config_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/{{ project_name | title_case }}Config.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/{{ project_name | title_case }}Config.cmake"
+    INSTALL_DESTINATION lib/cmake/{{ project_name | title_case }}
+)
+
+install(FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/{{ project_name | title_case }}Config.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/{{ project_name | title_case }}ConfigVersion.cmake"
+    DESTINATION lib/cmake/{{ project_name | title_case }}
+)
+
+# Print configuration information
+message(STATUS "{{ project_name | title_case }} configuration:")
+message(STATUS "  Version: ${PROJECT_VERSION}")
+message(STATUS "  C++ Standard: C++${CMAKE_CXX_STANDARD}")
+message(STATUS "  Type: Header-only library")
+message(STATUS "  Namespace: {{ namespace_name | default(value = project_name | snake_case) }}")

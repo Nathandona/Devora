@@ -1,0 +1,82 @@
+#include <catch2/catch_test_macros.hpp>
+#include <string>
+#include <vector>
+#include "{{ project_name | snake_case }}/{{ project_name | snake_case }}.hpp"
+
+using namespace {{ namespace_name | default(value = project_name | snake_case) }};
+
+TEST_CASE("Calculator operations", "[calculator]") {
+    SECTION("Addition") {
+        REQUIRE(Calculator::add(2, 3) == 5);
+        REQUIRE(Calculator::add(-1, 1) == 0);
+        REQUIRE(Calculator::add(0, 0) == 0);
+    }
+
+    SECTION("Multiplication") {
+        REQUIRE(Calculator::multiply(2, 3) == 6);
+        REQUIRE(Calculator::multiply(-1, 1) == -1);
+        REQUIRE(Calculator::multiply(0, 5) == 0);
+    }
+
+    SECTION("Division") {
+        REQUIRE(Calculator::divide(6, 2) == 3);
+        REQUIRE(Calculator::divide(-4, 2) == -2);
+
+        REQUIRE_THROWS_AS(Calculator::divide(5, 0), std::invalid_argument);
+    }
+}
+
+TEST_CASE("String utilities", "[string]") {
+    SECTION("Split") {
+        auto result = string_utils::split("a,b,c", ',');
+        REQUIRE(result == std::vector<std::string>{"a", "b", "c"});
+
+        auto single = string_utils::split("hello", ',');
+        REQUIRE(single == std::vector<std::string>{"hello"});
+
+        auto empty = string_utils::split("", ',');
+        REQUIRE(empty == std::vector<std::string>{""});
+    }
+
+    SECTION("Join") {
+        std::vector<std::string> parts{"a", "b", "c"};
+        REQUIRE(string_utils::join(parts, ",") == "a,b,c");
+        REQUIRE(string_utils::join({}, ",") == "");
+        REQUIRE(string_utils::join({"single"}, ",") == "single");
+    }
+
+{% if cpp_standard == "C++20" %}
+    SECTION("Contains") {
+        REQUIRE(string_utils::contains("hello world", "world"));
+        REQUIRE(string_utils::contains("hello", "hello"));
+        REQUIRE_FALSE(string_utils::contains("hello", "xyz"));
+    }
+{% endif %}
+}
+
+TEST_CASE("Container utilities", "[container]") {
+    SECTION("Contains in vector") {
+        std::vector<int> vec{1, 2, 3, 4, 5};
+        REQUIRE(container_utils::contains(vec, 3));
+        REQUIRE_FALSE(container_utils::contains(vec, 6));
+    }
+
+    SECTION("Contains in empty container") {
+        std::vector<int> empty;
+        REQUIRE_FALSE(container_utils::contains(empty, 1));
+    }
+}
+
+TEST_CASE("Template constraints", "[templates]") {
+{% if cpp_standard == "C++20" %}
+    SECTION("Integral types work with Calculator") {
+        REQUIRE(Calculator::add(static_cast<int>(2), static_cast<int>(3)) == 5);
+        REQUIRE(Calculator::multiply(static_cast<long>(4), static_cast<long>(5)) == 20);
+    }
+{% else %}
+    SECTION("Various numeric types work") {
+        REQUIRE(Calculator::add(2.5, 3.5) == 6.0);
+        REQUIRE(Calculator::multiply(2, 3) == 6);
+    }
+{% endif %}
+}

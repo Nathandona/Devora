@@ -1,0 +1,7 @@
+# {{ project_name | title_case }}
+
+{{ description | default(value = "A C++ project built with CMake") }}
+
+## License
+
+This project is licensed under the {{ license }} license.

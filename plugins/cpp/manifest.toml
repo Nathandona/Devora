@@ -1,0 +1,3 @@
+language = { id = "cpp", name = "C++", version = "1.0.0", description = "The C++ Programming Language" }
+default_framework = "cmake"
+frameworks = ["cmake", "conan", "makefile", "header-only"]

@@ -1,0 +1,36 @@
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Ensure all tests pass
+6. Submit a pull request
+
+## Project Structure
+
+```
+{{ project_name | snake_case }}/
+├── CMakeLists.txt          # Main CMake configuration
+├── README.md               # This file
+├── .gitignore              # Git ignore patterns
+├── src/                    # Source files
+│   └── {% if project_type == "executable" %}main.cpp{% else %}{{ project_name | snake_case }}.cpp{% endif %}
+├── include/                # Header files
+│   └── {{ project_name | snake_case }}/
+│       └── {% if project_type != "executable" %}{{ project_name | snake_case }}.hpp{% endif %}
+{% if include_tests %}├── tests/                   # Test files
+│   └── test_main.cpp
+{% endif %}
+{% if include_examples %}├── examples/                # Example usage
+│   └── basic_example.cpp
+{% endif %}
+└── build/                  # Build directory (generated)
+```
+
+## Generated with Devora
+
+This project was generated using [Devora](https://github.com/your-username/devora), the universal project scaffolding framework.
+
+Generated on: {{ date }}
+Author: {{ author | default(value = "Unknown") }}

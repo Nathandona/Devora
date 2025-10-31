@@ -1,0 +1,43 @@
+[framework]
+id = "header-only"
+name = "Header-Only Library"
+version = "1.0.0"
+description = "C++ header-only library with CMake configuration"
+
+[variables]
+description = { description = "Project description", required = false }
+license = { description = "Project license", default = "MIT", required = false }
+cpp_standard = { description = "C++ standard", default = "C++17", required = false, allowed_values = ["C++14", "C++17", "C++20", "C++23"] }
+namespace_name = { description = "Library namespace", default = "{{ project_name | snake_case }}", required = false }
+include_examples = { description = "Include usage examples", default = true, required = false }
+include_tests = { description = "Include test setup with Catch2", default = true, required = false }
+use_modules = { description = "Use C++20 modules (if C++20)", default = false, required = false }
+initialize_git = { description = "Initialize git repository", default = true, required = false }
+
+[[post_hooks]]
+command = "cmake -B build -DCMAKE_BUILD_TYPE=Release"
+description = "Configure CMake for tests"
+
+[[post_hooks]]
+command = "devora_git_init"
+description = "Initialize git repository"
+condition = "initialize_git == true"
+
+[[conditional_files]]
+path = "tests/test_main.cpp"
+condition = "include_tests == true"
+description = "Include test file when tests are enabled"
+
+[[conditional_files]]
+path = "examples/basic_usage.cpp"
+condition = "include_examples == true"
+description = "Include example when examples are enabled"
+
+[[conditional_files]]
+path = "include/{{ project_name | snake_case }}/module.cppm"
+condition = "use_modules == true and cpp_standard == 'C++20'"
+description = "Include C++20 module when enabled"
+
+init_commands = [
+    "{% if include_tests %}cmake -B build && cmake --build build && ctest --test-dir build{% endif %}"
+]

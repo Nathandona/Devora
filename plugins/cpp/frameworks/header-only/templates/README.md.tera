@@ -1,0 +1,237 @@
+# {{ project_name | title_case }}
+
+{{ description | default(value = "A modern C++ header-only library") }}
+
+## Features
+
+- **C++ Standard**: {{ cpp_standard }}
+- **Type**: Header-only library
+- **Namespace**: `{{ namespace_name | default(value = project_name | snake_case) }}`
+- **Testing**: {% if include_tests %}Enabled with Catch2{% else %}Disabled{% endif %}
+- **Examples**: {% if include_examples %}Included{% else %}Not included{% endif %}
+- **C++20 Modules**: {% if use_modules and cpp_standard == "C++20" %}Enabled{% else %}Disabled{% endif %}
+- **License**: {{ license }}
+
+## Installation
+
+This is a header-only library. Simply include the headers in your project:
+
+### Option 1: Include Directly
+
+Copy the `include/{{ project_name | snake_case }}` directory to your project and add to your include path.
+
+### Option 2: CMake Integration
+
+Add this library to your CMake project:
+
+```cmake
+# Using FetchContent
+include(FetchContent)
+FetchContent_Declare(
+    {{ project_name | snake_case }}
+    GIT_REPOSITORY https://github.com/your-username/{{ project_name }}.git
+    GIT_TAG        main
+)
+FetchContent_MakeAvailable({{ project_name | snake_case }})
+
+# Link to your target
+target_link_libraries(your_target {{ project_name | snake_case }})
+```
+
+### Option 3: System Installation
+
+```bash
+git clone https://github.com/your-username/{{ project_name }}.git
+cd {{ project_name }}
+cmake -B build
+cmake --build build --target install
+```
+
+Then in your CMake file:
+```cmake
+find_package({{ project_name | title_case }} REQUIRED)
+target_link_libraries(your_target {{ project_name | title_case }}::{{ project_name | title_case }})
+```
+
+## Usage
+
+### Basic Example
+
+```cpp
+#include "{{ project_name | snake_case }}/{{ project_name | snake_case }}.hpp"
+
+using namespace {{ namespace_name | default(value = project_name | snake_case) }};
+
+int main() {
+    // Calculator operations
+    auto sum = Calculator::add(2, 3);
+    auto product = Calculator::multiply(4, 5);
+
+    // String utilities
+    std::vector<std::string> parts = string_utils::split("a,b,c", ',');
+    std::string joined = string_utils::join(parts, " | ");
+
+    // Container utilities
+    std::vector<int> numbers = {1, 2, 3, 4, 5};
+    bool has_three = container_utils::contains(numbers, 3);
+
+    return 0;
+}
+```
+
+{% if use_modules and cpp_standard == "C++20" %}
+### C++20 Modules Usage
+
+```cpp
+import {{ project_name | snake_case }};
+
+using namespace {{ namespace_name | default(value = project_name | snake_case) }};
+
+int main() {
+    auto result = Calculator::add(10, 20);
+    return 0;
+}
+```
+{% endif %}
+
+## API Reference
+
+### Calculator Class
+
+Static utility functions for basic arithmetic operations:
+
+```cpp
+// Addition
+auto sum = Calculator::add(a, b);
+
+// Multiplication
+auto product = Calculator::multiply(a, b);
+
+// Division (with bounds checking)
+auto quotient = Calculator::divide(a, b); // Throws if b == 0
+```
+
+### String Utilities
+
+Functions for string manipulation:
+
+```cpp
+// Split string by delimiter
+auto parts = string_utils::split("a,b,c", ',');
+
+// Join vector of strings
+auto result = string_utils::join(parts, ", ");
+
+{% if cpp_standard == "C++20" %}
+// Check substring presence (C++20)
+bool found = string_utils::contains(text, substring);
+{% endif %}
+```
+
+### Container Utilities
+
+Generic container operations:
+
+```cpp
+// Check if container contains value
+std::vector<int> vec = {1, 2, 3};
+bool has_two = container_utils::contains(vec, 2);
+```
+
+## Testing
+
+{% if include_tests %}
+This project includes comprehensive tests using [Catch2](https://github.com/catchorg/Catch2).
+
+### Running Tests
+
+```bash
+cmake -B build
+cmake --build build
+ctest --test-dir build --output-on-failure
+```
+
+Or run tests directly:
+```bash
+./build/tests
+```
+
+### Test Coverage
+
+- Calculator operations with edge cases
+- String utility functions
+- Container operations
+- Template constraints
+{% if cpp_standard == "C++20" %}
+- C++20 specific functionality
+{% endif %}
+{% else %}
+Testing is not enabled for this project. To enable testing, regenerate the project with `include_tests=true`.
+{% endif %}
+
+## Examples
+
+{% if include_examples %}
+Example programs are provided in the `examples/` directory:
+
+- `basic_usage.cpp` - Demonstrates all major features
+
+To build and run examples:
+```bash
+mkdir -p build/examples
+cd build/examples
+g++ -std=c++{{ cpp_standard | regex_replace(pat="C\\+\\+", repl="") }} -I../../include ../../examples/basic_usage.cpp -o basic_usage
+./basic_usage
+```
+{% else %}
+Examples are not included in this distribution. To include examples, regenerate the project with `include_examples=true`.
+{% endif %}
+
+## Requirements
+
+- **C++{{ cpp_standard | regex_replace(pat="C\\+\\+", repl="") }}** compatible compiler
+  - GCC 7+ (for C++17), GCC 10+ (for C++20)
+  - Clang 5+ (for C++17), Clang 12+ (for C++20)
+  - MSVC 2017+ (for C++17), MSVC 2022 (for C++20)
+- **CMake 3.15+** (for building tests/examples)
+{% if include_tests %}
+- **Catch2** (automatically downloaded for testing)
+{% endif %}
+
+## Project Structure
+
+```
+{{ project_name | snake_case }}/
+├── include/                 # Header files
+│   └── {{ project_name | snake_case }}/
+│       ├── {{ project_name | snake_case }}.hpp    # Main library header
+│       {% if use_modules and cpp_standard == "C++20" %}└── module.cppm              # C++20 module interface{% endif %}
+{% if include_examples %}├── examples/               # Usage examples
+│   └── basic_usage.cpp
+{% endif %}
+{% if include_tests %}├── tests/                  # Test files
+│   └── test_main.cpp
+{% endif %}
+├── CMakeLists.txt          # CMake configuration
+├── README.md               # This file
+└── .gitignore              # Git ignore patterns
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Add tests for new functionality
+4. Ensure all tests pass
+5. Submit a pull request
+
+## License
+
+This project is licensed under the {{ license }} license.
+
+## Generated with Devora
+
+This project was generated using [Devora](https://github.com/your-username/devora), the universal project scaffolding framework.
+
+Generated on: {{ date }}
+Author: {{ author | default(value = "Unknown") }}

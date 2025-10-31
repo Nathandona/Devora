@@ -1,0 +1,44 @@
+[framework]
+id = "conan"
+name = "Conan"
+version = "1.0.0"
+description = "C++ project with CMake and Conan package manager"
+
+[variables]
+description = { description = "Project description", required = false }
+license = { description = "Project license", default = "MIT", required = false }
+cpp_standard = { description = "C++ standard", default = "C++17", required = false, allowed_values = ["C++14", "C++17", "C++20", "C++23"] }
+project_type = { description = "Project type", default = "executable", required = false, allowed_values = ["executable", "library", "header-only"] }
+include_tests = { description = "Include test setup with Catch2", default = true, required = false }
+conan_version = { description = "Conan version", default = "2.x", required = false, allowed_values = ["1.x", "2.x"] }
+build_type = { description = "Default build type", default = "Release", required = false, allowed_values = ["Debug", "Release", "RelWithDebInfo"] }
+initialize_git = { description = "Initialize git repository", default = true, required = false }
+
+[[post_hooks]]
+command = "conan install . --build=missing -s:h build_type={{build_type}}"
+description = "Install Conan dependencies"
+
+[[post_hooks]]
+command = "cmake -B build -DCMAKE_BUILD_TYPE={{build_type}} -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake"
+description = "Configure CMake with Conan toolchain"
+
+[[post_hooks]]
+command = "cmake --build build --config {{build_type}}"
+description = "Build the project"
+
+[[post_hooks]]
+command = "devora_git_init"
+description = "Initialize git repository"
+condition = "initialize_git == true"
+
+[[conditional_files]]
+path = "tests/test_main.cpp"
+condition = "include_tests == true"
+description = "Include test file when tests are enabled"
+
+init_commands = [
+    "conan install . --build=missing -s:h build_type={{build_type}}",
+    "cmake -B build -DCMAKE_BUILD_TYPE={{build_type}} -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake",
+    "cmake --build build --config {{build_type}}",
+    "{% if project_type == 'executable' %}./build/{{project_name}}{% endif %}"
+]
