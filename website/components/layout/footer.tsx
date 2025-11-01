@@ -53,8 +53,8 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a href="#languages" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Language Support
+                <a href="#roadmap" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Roadmap
                 </a>
               </li>
               <li>

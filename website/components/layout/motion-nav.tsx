@@ -22,7 +22,7 @@ export function MotionNav() {
 
   const navItems = [
     { label: 'Features', href: '#features' },
-    { label: 'Languages', href: '#languages' },
+    { label: 'Roadmap', href: '#roadmap' },
     { label: 'Demo', href: '#demo' },
     { label: 'Documentation', href: DOCS_URL, external: true },
   ];

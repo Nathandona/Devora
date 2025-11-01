@@ -132,7 +132,7 @@ export function RoadmapTimeline() {
   };
 
   return (
-    <section className="relative py-24 px-4 overflow-hidden">
+    <section className="relative py-24 px-4 overflow-hidden" id='roadmap'>
       {/* Background decoration */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-secondary/3" />
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
