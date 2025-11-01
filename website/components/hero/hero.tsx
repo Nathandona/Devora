@@ -36,7 +36,7 @@ export function Hero() {
                   Scaffold any
                 </span>
                 <br />
-                <span className="bg-gradient-to-r from-primary/90 to-primary/60 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-primary/90 to-primary/70 bg-clip-text text-transparent">
                   project in seconds
                 </span>
               </h1>

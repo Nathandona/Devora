@@ -63,13 +63,9 @@ export function FinalCTA() {
           {/* Main Headline */}
           <motion.h2
             variants={fadeInUp}
-            className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight"
+            className="text-3xl md:text-5xl font-bold tracking-tight"
           >
-            Stop copy-pasting.
-            <br />
-            <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              Start creating.
-            </span>
+            Stop copy-pasting. Start creating.
           </motion.h2>
 
           {/* Description */}
