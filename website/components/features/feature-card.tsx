@@ -45,20 +45,11 @@ export function FeatureCard({ feature, index, featured = true }: FeatureCardProp
       }}
     >
       <Card className="relative group overflow-hidden border-border/30 bg-gradient-to-br from-card via-card/95 to-card/90 backdrop-blur-sm shadow-xl shadow-primary/5 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 hover:border-primary/20">
-        {/* Gradient overlay on hover */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-        {/* Animated background pattern */}
-        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-2xl transform translate-x-16 -translate-y-16" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-secondary/10 to-transparent rounded-full blur-xl transform -translate-x-12 translate-y-12" />
-        </div>
 
         <CardContent className="p-6 lg:p-8 relative">
           <div className="space-y-6">
             {/* Icon with enhanced animation */}
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-all duration-500 scale-110" />
               <div className="relative inline-flex items-center justify-center w-14 h-14 lg:w-16 lg:h-16 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 group-hover:scale-110 transition-all duration-300">
                 <Icon className="w-7 h-7 lg:w-8 lg:h-8 text-primary" />
               </div>
