@@ -1,132 +1,78 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { fadeInUp, scaleIn } from '@/lib/animations';
-import { INSTALL_COMMAND, GITHUB_URL } from '@/lib/constants';
-import { Terminal, ArrowRight, Copy, Sparkles } from 'lucide-react';
+import { ArrowRight, Copy } from 'lucide-react';
+import { fadeRise, stagger } from '@/lib/animations';
+import { GITHUB_URL, INSTALL_COMMAND } from '@/lib/constants';
 
 export function FinalCTA() {
-  const copyToClipboard = async () => {
+  const copy = async () => {
     try {
       await navigator.clipboard.writeText(INSTALL_COMMAND);
-      toast.success('Command copied to clipboard!');
-    } catch (error) {
-      toast.error('Failed to copy command to clipboard');
+      toast.success('Copied install command');
+    } catch {
+      toast.error('Could not copy. Long-press to select.');
     }
   };
 
   return (
-    <section className="py-20 px-4 relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5" />
-
-      {/* Floating elements */}
-      <motion.div
-        animate={{
-          y: [-20, 20, -20],
-          rotate: [-5, 5, -5],
-        }}
-        transition={{
-          duration: 10,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-        className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full blur-2xl"
-      />
-
-      <motion.div
-        animate={{
-          y: [20, -20, 20],
-          rotate: [5, -5, 5],
-        }}
-        transition={{
-          duration: 12,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 2
-        }}
-        className="absolute bottom-20 right-10 w-40 h-40 bg-gradient-to-tr from-cyan-500/20 to-blue-500/20 rounded-full blur-2xl"
-      />
-
-      <div className="container max-w-4xl mx-auto relative z-10">
+    <section className="relative py-32 border-t border-border">
+      <div className="container-tight">
         <motion.div
           initial="initial"
           whileInView="animate"
-          viewport={{ once: true }}
-          variants={fadeInUp}
-          className="text-center space-y-8"
+          viewport={{ once: true, amount: 0.4 }}
+          variants={stagger}
+          className="mx-auto max-w-xl text-center"
         >
-
-          {/* Main Headline */}
           <motion.h2
-            variants={fadeInUp}
-            className="text-3xl md:text-5xl font-bold tracking-tight"
+            variants={fadeRise}
+            className="font-medium tracking-tight"
+            style={{
+              fontSize: 'clamp(1.8rem, 3.4vw, 2.6rem)',
+              lineHeight: 1.1,
+              letterSpacing: '-0.02em',
+            }}
           >
-            Stop copy-pasting. Start creating.
+            One command away.
           </motion.h2>
 
-          {/* Description */}
           <motion.p
-            variants={fadeInUp}
-            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
+            variants={fadeRise}
+            className="mt-5 text-[15px] leading-relaxed text-muted-foreground"
           >
-            Join thousands of developers who've streamlined their workflow with Devora.
-            Your next project is just one command away.
+            Free, MIT, no telemetry. Use it, or read the source first &mdash; we won&rsquo;t mind.
           </motion.p>
 
-          {/* Install Command */}
-          <motion.div
-            variants={scaleIn}
-            className="max-w-2xl mx-auto"
-          >
-            <div className="p-6 rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm space-y-4">
-              <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                <Terminal className="w-4 h-4" />
-                <span>Quick install:</span>
-              </div>
-
-              <div className="flex items-center gap-3 p-4 rounded-lg bg-black/50 border border-border/30">
-                <code className="font-mono text-sm md:text-base flex-1 text-foreground/90">
+          <motion.div variants={fadeRise} className="mt-10">
+            <button
+              onClick={copy}
+              className="group/copy mx-auto flex w-full max-w-md items-center justify-between gap-3 rounded-md bg-secondary/60 px-3.5 py-3 text-left ring-1 ring-border hover:ring-foreground/30 transition-[box-shadow] duration-200"
+            >
+              <span className="flex items-center gap-2.5 overflow-hidden">
+                <span className="text-muted-foreground/60 font-mono text-xs select-none">$</span>
+                <code className="font-mono text-[13px] truncate text-foreground/90">
                   {INSTALL_COMMAND}
                 </code>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={copyToClipboard}
-                  className="h-8 px-3 hover:bg-accent/50 text-muted-foreground hover:text-foreground"
-                >
-                  <Copy className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
+              </span>
+              <span className="flex items-center gap-1.5 text-muted-foreground group-hover/copy:text-foreground transition-colors">
+                <Copy className="size-3.5" />
+                <span className="font-mono text-[11px] uppercase tracking-wider">copy</span>
+              </span>
+            </button>
           </motion.div>
 
-          {/* CTA Buttons */}
-          <motion.div
-            variants={scaleIn}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-          >
-            <Button
-              size="lg"
-              onClick={() => window.open(GITHUB_URL, '_blank')}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-6 text-lg h-auto"
+          <motion.div variants={fadeRise} className="mt-5">
+            <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="group inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              Get Started Now
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
-
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => window.open(`${GITHUB_URL}/blob/main/README.md`, '_blank')}
-              className="border-border/50 hover:bg-accent/50 px-8 py-6 text-lg h-auto"
-            >
-              Read the Docs
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
+              Read the source on GitHub
+              <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+            </a>
           </motion.div>
         </motion.div>
       </div>

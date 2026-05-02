@@ -1,144 +1,204 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { fileTreeExpand, terminalCursor } from '@/lib/animations';
-import { CheckCircle2, Loader2, FolderTree, FileCode } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { TERMINAL_SEQUENCES, TerminalLine } from '@/lib/constants';
+import { EASE_OUT } from '@/lib/animations';
 
-interface TerminalStep {
-  type: 'command' | 'output' | 'file' | 'success';
-  content: string;
-  delay: number;
+const PROMPT = '~/projects';
+const PAUSE_BETWEEN_SEQUENCES_MS = 1800;
+const PAUSE_BEFORE_NEXT_LINE_MS = 220;
+const TYPE_MIN = 28;
+const TYPE_MAX = 58;
+const TYPE_JITTER = 14;
+
+function classFor(kind: TerminalLine['kind']) {
+  switch (kind) {
+    case 'command':  return 'text-foreground';
+    case 'output':   return 'text-foreground/85';
+    case 'tree':     return 'text-foreground/70';
+    case 'success':  return 'text-foreground';
+    case 'muted':    return 'text-muted-foreground';
+    case 'prompt':   return 'text-muted-foreground';
+  }
 }
 
-const TERMINAL_SEQUENCES: TerminalStep[][] = [
-  [
-    { type: 'command', content: '$ devora new rust my-project', delay: 0 },
-    { type: 'output', content: '🦀 Creating Rust project "my-project"...', delay: 800 },
-    { type: 'output', content: '📁 Generated project structure:', delay: 1600 },
-    { type: 'file', content: '├── Cargo.toml', delay: 2400 },
-    { type: 'file', content: '├── README.md', delay: 2800 },
-    { type: 'file', content: '├── .gitignore', delay: 3200 },
-    { type: 'file', content: '├── src/', delay: 3600 },
-    { type: 'file', content: '│   ├── main.rs', delay: 4000 },
-    { type: 'file', content: '│   └── tests.rs', delay: 4400 },
-    { type: 'success', content: '✅ Project created successfully!', delay: 5200 },
-  ],
-  [
-    { type: 'command', content: '$ devora new api python --framework=fastapi', delay: 0 },
-    { type: 'output', content: '🐍 Creating Python API project "api"...', delay: 800 },
-    { type: 'output', content: '📦 Installing FastAPI dependencies...', delay: 1600 },
-    { type: 'file', content: '├── requirements.txt', delay: 2400 },
-    { type: 'file', content: '├── main.py', delay: 2800 },
-    { type: 'file', content: '├── Dockerfile', delay: 3200 },
-    { type: 'success', content: '✅ Python API project ready!', delay: 4000 },
-  ],
-];
+function prefixFor(kind: TerminalLine['kind']) {
+  if (kind === 'command') return <span className="text-muted-foreground select-none">{PROMPT} ❯ </span>;
+  if (kind === 'success') return <span className="text-foreground/60 select-none">  ✓ </span>;
+  if (kind === 'output')  return <span className="text-foreground/40 select-none">  · </span>;
+  if (kind === 'muted')   return <span className="text-foreground/30 select-none">  · </span>;
+  return null;
+}
+
+function StaticFrame({ sequence }: { sequence: typeof TERMINAL_SEQUENCES[number] }) {
+  return (
+    <>
+      {sequence.lines.map((line, i) => (
+        <div key={i} className={`whitespace-pre ${classFor(line.kind)}`}>
+          {prefixFor(line.kind)}
+          {line.text}
+        </div>
+      ))}
+    </>
+  );
+}
 
 export function TerminalAnimation() {
-  const [currentSequence, setCurrentSequence] = useState(0);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [visibleSteps, setVisibleSteps] = useState<TerminalStep[]>([]);
-  const [isTyping, setIsTyping] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
+  const [seqIndex, setSeqIndex] = useState(0);
+  const [doneCount, setDoneCount] = useState(0);
+  const [typingChar, setTypingChar] = useState(0);
+  const [hovered, setHovered] = useState(false);
+  const [restartTick, setRestartTick] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const sequence = TERMINAL_SEQUENCES[currentSequence];
+  const sequence = TERMINAL_SEQUENCES[seqIndex];
+  const renderedLines = useMemo(
+    () => sequence.lines.slice(0, doneCount),
+    [sequence, doneCount]
+  );
+  const currentLine: TerminalLine | undefined = sequence.lines[doneCount];
+  const isBetween = !currentLine; // sequence finished, waiting for next
+  const isCommandTyping = currentLine?.kind === 'command';
 
+  // Drive the animation forward. The effect only schedules timeouts; it never
+  // setStates synchronously, so each render reads stable derived values.
   useEffect(() => {
-    const timer = setInterval(() => {
-      if (currentStep < sequence.length) {
-        const step = sequence[currentStep];
-        setVisibleSteps(prev => [...prev, step]);
-        setCurrentStep(prev => prev + 1);
-        setIsTyping(true);
-        setTimeout(() => setIsTyping(false), 300);
-      } else {
-        // Reset after completing sequence
-        setTimeout(() => {
-          setCurrentStep(0);
-          setVisibleSteps([]);
-          setCurrentSequence(prev => (prev + 1) % TERMINAL_SEQUENCES.length);
-        }, 3000);
-      }
-    }, sequence[currentStep]?.delay || 100);
+    if (prefersReducedMotion || hovered) return;
 
-    return () => clearInterval(timer);
-  }, [currentStep, sequence, currentSequence]);
+    if (isBetween) {
+      const t = setTimeout(() => {
+        setSeqIndex(i => (i + 1) % TERMINAL_SEQUENCES.length);
+        setDoneCount(0);
+        setTypingChar(0);
+      }, PAUSE_BETWEEN_SEQUENCES_MS);
+      return () => clearTimeout(t);
+    }
+
+    if (isCommandTyping) {
+      if (typingChar < currentLine!.text.length) {
+        const variance = TYPE_MIN + Math.random() * (TYPE_MAX - TYPE_MIN);
+        const jitter = (Math.random() - 0.5) * TYPE_JITTER;
+        const t = setTimeout(() => setTypingChar(c => c + 1), variance + jitter);
+        return () => clearTimeout(t);
+      }
+      const t = setTimeout(() => {
+        setDoneCount(c => c + 1);
+        setTypingChar(0);
+      }, 240);
+      return () => clearTimeout(t);
+    }
+
+    const delay = currentLine!.kind === 'tree' ? 60 : PAUSE_BEFORE_NEXT_LINE_MS;
+    const t = setTimeout(() => setDoneCount(c => c + 1), delay);
+    return () => clearTimeout(t);
+  }, [
+    prefersReducedMotion,
+    hovered,
+    isBetween,
+    isCommandTyping,
+    typingChar,
+    currentLine,
+    restartTick,
+  ]);
+
+  const handleClick = () => {
+    setDoneCount(0);
+    setTypingChar(0);
+    setRestartTick(t => t + 1);
+  };
+
+  if (prefersReducedMotion) {
+    return (
+      <div
+        className="relative w-full overflow-hidden rounded-lg bg-terminal ring-hairline"
+        style={{ fontFeatureSettings: '"liga" 0, "calt" 0' }}
+      >
+        <TerminalChrome hovered={false} />
+        <div className="px-4 py-4 font-mono text-[13px] leading-[1.7] min-h-[340px]">
+          <StaticFrame sequence={sequence} />
+        </div>
+      </div>
+    );
+  }
+
+  const visibleCommandSlice = isCommandTyping ? currentLine!.text.slice(0, typingChar) : '';
 
   return (
-    <Card className="relative overflow-hidden border-border/50 bg-card/50 backdrop-blur-sm">
-      <div className="flex items-center gap-2 border-b border-border/50 p-3 bg-muted/30">
-        <div className="flex gap-1.5">
-          <div className="w-3 h-3 rounded-full bg-red-500/80" />
-          <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
-          <div className="w-3 h-3 rounded-full bg-green-500/80" />
-        </div>
-        <div className="flex-1 flex justify-center">
-          <Badge variant="secondary" className="text-xs">
-            terminal
-          </Badge>
-        </div>
-        <div className="w-16" />
-      </div>
+    <div
+      ref={containerRef}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onClick={handleClick}
+      role="img"
+      aria-label="Animated demonstration of the Devora CLI"
+      className="group relative w-full overflow-hidden rounded-lg bg-terminal ring-hairline cursor-pointer select-none"
+      style={{ fontFeatureSettings: '"liga" 0, "calt" 0' }}
+    >
+      <TerminalChrome hovered={hovered} />
 
-      <div className="p-4 font-mono text-sm space-y-1 min-h-[300px]">
-        <AnimatePresence mode="popLayout">
-          {visibleSteps.map((step, index) => (
-            <motion.div
-              key={`${currentSequence}-${index}`}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
-              className="flex items-start gap-2"
-            >
-              {step.type === 'command' && (
-                <>
-                  <span className="text-cyan-400">$</span>
-                  <span className="text-foreground">{step.content}</span>
-                </>
-              )}
-              {step.type === 'output' && (
-                <>
-                  <span className="text-green-400">→</span>
-                  <span className="text-muted-foreground">{step.content}</span>
-                </>
-              )}
-              {step.type === 'file' && (
-                <>
-                  <FolderTree className="w-4 h-4 text-blue-400 mt-0.5" />
-                  <span className="text-foreground/80">{step.content}</span>
-                </>
-              )}
-              {step.type === 'success' && (
-                <>
-                  <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5" />
-                  <span className="text-green-500 font-medium">{step.content}</span>
-                </>
-              )}
-            </motion.div>
-          ))}
-        </AnimatePresence>
-
-        {isTyping && (
+      <div className="px-4 py-4 font-mono text-[13px] leading-[1.7] min-h-[340px]">
+        {renderedLines.map((line, i) => (
           <motion.div
-            variants={terminalCursor}
-            initial="initial"
-            animate="animate"
-            className="inline-block w-2 h-4 bg-cyan-400 ml-2"
-          />
+            key={`${seqIndex}-${i}-${restartTick}`}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.28, ease: EASE_OUT }}
+            className={`whitespace-pre ${classFor(line.kind)}`}
+          >
+            {prefixFor(line.kind)}
+            {line.text}
+          </motion.div>
+        ))}
+
+        {isCommandTyping && (
+          <div className="whitespace-pre text-foreground">
+            {prefixFor('command')}
+            {visibleCommandSlice}
+            <Cursor blinking={typingChar === 0 || typingChar === currentLine!.text.length} />
+          </div>
+        )}
+
+        {isBetween && (
+          <div className="whitespace-pre text-foreground">
+            {prefixFor('command')}
+            <Cursor blinking />
+          </div>
         )}
       </div>
 
-      <div className="absolute bottom-3 right-3">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          {currentStep < sequence.length && (
-            <Loader2 className="w-3 h-3 animate-spin" />
-          )}
-          <span>{currentSequence + 1}/{TERMINAL_SEQUENCES.length}</span>
-        </div>
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-background/40 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background/40 to-transparent" />
+    </div>
+  );
+}
+
+function TerminalChrome({ hovered }: { hovered: boolean }) {
+  return (
+    <div className="flex items-center justify-between border-b border-border/60 px-4 py-2.5">
+      <div className="flex items-center gap-1.5">
+        <span className="size-2 rounded-full bg-foreground/15" />
+        <span className="size-2 rounded-full bg-foreground/15" />
+        <span className="size-2 rounded-full bg-foreground/15" />
       </div>
-    </Card>
+      <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground/60">
+        devora · zsh
+      </span>
+      <span className="font-mono text-[10px] text-muted-foreground/40">
+        {hovered ? 'paused' : ''}
+      </span>
+    </div>
+  );
+}
+
+function Cursor({ blinking }: { blinking: boolean }) {
+  return (
+    <motion.span
+      aria-hidden
+      className="ml-[1px] inline-block h-[1em] w-[0.55ch] -mb-[2px] align-baseline bg-foreground/85"
+      animate={blinking ? { opacity: [1, 1, 0, 0] } : { opacity: 1 }}
+      transition={blinking ? { duration: 1.06, repeat: Infinity, times: [0, 0.5, 0.5, 1] } : undefined}
+    />
   );
 }

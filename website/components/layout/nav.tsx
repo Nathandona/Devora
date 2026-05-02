@@ -3,17 +3,25 @@
 import { Suspense } from 'react';
 import dynamic from 'next/dynamic';
 
-const MotionNav = dynamic(() => import('./motion-nav').then(mod => ({ default: mod.MotionNav })), {
-  ssr: false,
-  loading: () => <NavSkeleton />
-});
+const MotionNav = dynamic(
+  () => import('./motion-nav').then(mod => ({ default: mod.MotionNav })),
+  {
+    ssr: false,
+    loading: () => <NavSkeleton />,
+  }
+);
 
 function NavSkeleton() {
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 h-16 bg-background/80 backdrop-blur-md border-b border-border/50">
-      <div className="container max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
-        <div className="w-24 h-6 bg-muted rounded animate-pulse" />
-        <div className="w-32 h-8 bg-muted rounded animate-pulse" />
+    <nav className="fixed inset-x-0 top-0 z-50 h-14 border-b border-transparent">
+      <div className="container-tight flex h-full items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-sm font-medium tracking-tight">devora</span>
+          <span className="font-mono text-[10px] text-muted-foreground/70 border border-border rounded px-1.5 py-px">
+            v0.1
+          </span>
+        </div>
+        <div className="size-9" />
       </div>
     </nav>
   );

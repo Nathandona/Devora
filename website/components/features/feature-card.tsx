@@ -1,82 +1,39 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { FEATURES } from '@/lib/constants';
-import { scaleIn } from '@/lib/animations';
-import {
-  Blocks,
-  Zap,
-  Layers,
-  Puzzle,
-  Sparkles,
-  ArrowRight
-} from 'lucide-react';
+import { Feature } from '@/lib/constants';
+import { fadeRise } from '@/lib/animations';
 
-const iconMap = {
-  Blocks,
-  Zap,
-  Layers,
-  Puzzle,
-  Sparkles,
-  ArrowRight
-};
-
-interface FeatureCardProps {
-  feature: typeof FEATURES[0];
+interface Props {
+  feature: Feature;
   index: number;
-  featured?: boolean;
 }
 
-export function FeatureCard({ feature, index, featured = true }: FeatureCardProps) {
-  const Icon = iconMap[feature.icon as keyof typeof iconMap];
-
+export function FeatureCard({ feature, index }: Props) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20, scale: 0.95 }}
-      whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: true }}
-      whileHover={{ y: -4, scale: 1.02 }}
-      transition={{
-        duration: 0.6,
-        delay: index * 0.1,
-        ease: [0.25, 0.46, 0.45, 0.94]
-      }}
+      variants={fadeRise}
+      className="relative bg-background p-6 lg:p-8 group/card"
     >
-      <Card className="relative group overflow-hidden border-border/30 bg-gradient-to-br from-card via-card/95 to-card/90 backdrop-blur-sm shadow-xl shadow-primary/5 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 hover:border-primary/20">
+      <div className="flex items-baseline gap-3">
+        <span className="font-mono text-[11px] tabular-nums text-muted-foreground/60">
+          {String(index + 1).padStart(2, '0')}
+        </span>
+        <h3 className="text-base font-medium tracking-tight text-foreground">
+          {feature.title}
+        </h3>
+      </div>
 
-        <CardContent className="p-6 lg:p-8 relative">
-          <div className="space-y-6">
-            {/* Icon with enhanced animation */}
-            <div className="relative">
-              <div className="relative inline-flex items-center justify-center w-14 h-14 lg:w-16 lg:h-16 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 group-hover:scale-110 transition-all duration-300">
-                <Icon className="w-7 h-7 lg:w-8 lg:h-8 text-primary" />
-              </div>
-            </div>
+      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+        {feature.body}
+      </p>
 
-            {/* Content with improved typography */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <h3 className="text-xl lg:text-2xl font-bold group-hover:text-primary transition-colors duration-300">
-                  {feature.title}
-                </h3>
-              </div>
-              <p className="text-muted-foreground leading-relaxed text-sm lg:text-base">
-                {feature.description}
-              </p>
-            </div>
-
-            {/* Enhanced footer with subtle indicators */}
-            <div className="flex items-center justify-between pt-2">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground/70">
-                <div className="w-1 h-1 rounded-full bg-current" />
-                <span>Core feature</span>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <pre
+        className="mt-6 overflow-x-auto rounded-md bg-terminal ring-1 ring-border/80 p-4 font-mono text-[12px] leading-[1.7] text-foreground/85 group-hover/card:ring-foreground/20 transition-[box-shadow] duration-200"
+        style={{ fontFeatureSettings: '"liga" 0, "calt" 0' }}
+      >
+        <code>{feature.code}</code>
+      </pre>
     </motion.div>
   );
 }

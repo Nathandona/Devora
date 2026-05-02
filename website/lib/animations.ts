@@ -1,123 +1,54 @@
-import { Variants } from 'framer-motion';
+import { Transition, Variants } from 'framer-motion';
 
-export const fadeInUp: Variants = {
-  initial: {
-    opacity: 0,
-    y: 20,
-  },
+// Single ease used across the site. Smooth out, no bounce.
+export const EASE_OUT: [number, number, number, number] = [0.32, 0.72, 0, 1];
+
+// Spring used for any "land in place" motion (file tree lines, cards, hovers).
+export const SPRING: Transition = {
+  type: 'spring',
+  stiffness: 380,
+  damping: 32,
+  mass: 0.8,
+};
+
+// Soft micro-spring for hovers — almost imperceptible bounce.
+export const HOVER_SPRING: Transition = {
+  type: 'spring',
+  stiffness: 500,
+  damping: 38,
+  mass: 0.6,
+};
+
+// Primary entry motion. Use sparingly.
+export const fadeRise: Variants = {
+  initial: { opacity: 0, y: 8 },
   animate: {
     opacity: 1,
     y: 0,
-    transition: {
-      duration: 0.6,
-      ease: [0.25, 0.46, 0.45, 0.94],
-    },
+    transition: { duration: 0.5, ease: EASE_OUT },
   },
 };
 
-export const fadeInLeft: Variants = {
-  initial: {
-    opacity: 0,
-    x: -20,
-  },
-  animate: {
-    opacity: 1,
-    x: 0,
-    transition: {
-      duration: 0.6,
-      ease: [0.25, 0.46, 0.45, 0.94],
-    },
-  },
-};
-
-export const fadeInRight: Variants = {
-  initial: {
-    opacity: 0,
-    x: 20,
-  },
-  animate: {
-    opacity: 1,
-    x: 0,
-    transition: {
-      duration: 0.6,
-      ease: [0.25, 0.46, 0.45, 0.94],
-    },
-  },
-};
-
-export const scaleIn: Variants = {
-  initial: {
-    opacity: 0,
-    scale: 0.9,
-  },
-  animate: {
-    opacity: 1,
-    scale: 1,
-    transition: {
-      duration: 0.5,
-      ease: [0.25, 0.46, 0.45, 0.94],
-    },
-  },
-};
-
-export const staggerChildren: Variants = {
-  animate: {
-    transition: {
-      staggerChildren: 0.1,
-    },
-  },
-};
-
-export const typewriterText: Variants = {
-  initial: {
-    width: 0,
-  },
-  animate: {
-    width: 'auto',
-    transition: {
-      duration: 0.5,
-      ease: 'easeOut',
-    },
-  },
-};
-
-export const slideInFromBottom: Variants = {
-  initial: {
-    opacity: 0,
-    y: 30,
-  },
-  animate: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.7,
-      ease: [0.25, 0.46, 0.45, 0.94],
-    },
-  },
-};
-
-export const terminalCursor: Variants = {
+// Pure opacity. For text blocks where movement would be noise.
+export const fadeIn: Variants = {
   initial: { opacity: 0 },
   animate: {
-    opacity: [0, 1, 0],
-    transition: {
-      duration: 1,
-      repeat: Infinity,
-    }
+    opacity: 1,
+    transition: { duration: 0.4, ease: EASE_OUT },
   },
 };
 
-export const fileTreeExpand: Variants = {
-  initial: {
-    height: 0,
-    opacity: 0,
-  },
+// Tight stagger for siblings entering together.
+export const stagger: Variants = {
   animate: {
-    height: 'auto',
-    opacity: 1,
-    transition: {
-      duration: 0.3,
-      ease: 'easeOut',
-    },
+    transition: { staggerChildren: 0.04, delayChildren: 0.04 },
+  },
+};
+
+// Terminal cursor blink — 530ms feels alive (not the textbook 1s).
+export const cursorBlink: Variants = {
+  animate: {
+    opacity: [1, 1, 0, 0],
+    transition: { duration: 1.06, repeat: Infinity, times: [0, 0.5, 0.5, 1] },
   },
 };

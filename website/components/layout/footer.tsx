@@ -1,118 +1,85 @@
-import { Separator } from '@/components/ui/separator';
-import { Github, BookOpen, Terminal, Scale } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { GITHUB_URL, DOCS_URL } from '@/lib/constants';
+import Link from 'next/link';
+import { Github } from 'lucide-react';
+import {
+  GITHUB_URL,
+  DOCS_URL,
+  CONTRIBUTING_URL,
+  ISSUES_URL,
+} from '@/lib/constants';
+
+const COLS = [
+  {
+    heading: 'Project',
+    links: [
+      { label: 'GitHub',     href: GITHUB_URL,       external: true  },
+      { label: 'Docs',       href: DOCS_URL,         external: true  },
+      { label: 'Contribute', href: CONTRIBUTING_URL, external: true  },
+      { label: 'Issues',     href: ISSUES_URL,       external: true  },
+    ],
+  },
+  {
+    heading: 'On this page',
+    links: [
+      { label: 'Features',    href: '#features',    external: false },
+      { label: 'Languages',   href: '#languages',   external: false },
+      { label: 'Open source', href: '#open-source', external: false },
+    ],
+  },
+];
 
 export function Footer() {
   return (
-    <footer className="border-t border-border/50 bg-card/30 backdrop-blur-sm">
-      <div className="container max-w-7xl mx-auto px-4 py-12">
-        <div className="grid md:grid-cols-4 gap-8">
-          {/* Brand */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              <Terminal className="w-6 h-6 text-primary" />
-              <span className="text-xl font-bold">Devora</span>
-            </div>
-            <Badge variant="secondary" className="text-xs">
-              v0.1.0
-            </Badge>
-          </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Universal project scaffolding for any language.
-              Stop copy-pasting boilerplate. Start creating.
+    <footer className="border-t border-border">
+      <div className="container-tight py-14">
+        <div className="grid gap-10 md:grid-cols-[1.6fr_1fr_1fr]">
+          <div className="max-w-sm">
+            <Link href="#hero" className="inline-flex items-center gap-2">
+              <span className="font-mono text-sm font-medium">devora</span>
+              <span className="font-mono text-[10px] text-muted-foreground/70 border border-border rounded px-1.5 py-px">
+                v0.1
+              </span>
+            </Link>
+            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+              A plugin-driven CLI for project boilerplate. Open source, MIT.
+              Built quietly.
             </p>
-            <div className="flex items-center gap-3">
-              <a
-                href={GITHUB_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <Github className="w-5 h-5" />
-              </a>
-              <a
-                href={DOCS_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <BookOpen className="w-5 h-5" />
-              </a>
+            <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-5 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Github className="size-4" />
+              github.com/Nathandona/devora
+            </a>
+          </div>
+
+          {COLS.map(col => (
+            <div key={col.heading}>
+              <h3 className="text-xs uppercase tracking-[0.18em] text-muted-foreground/70 font-medium">
+                {col.heading}
+              </h3>
+              <ul className="mt-4 space-y-2.5">
+                {col.links.map(link => (
+                  <li key={link.label}>
+                    <a
+                      href={link.href}
+                      target={link.external ? '_blank' : undefined}
+                      rel={link.external ? 'noreferrer' : undefined}
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </div>
-
-          {/* Product */}
-          <div className="space-y-4">
-            <h3 className="font-semibold">Product</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Features
-                </a>
-              </li>
-              <li>
-                <a href="#roadmap" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Roadmap
-                </a>
-              </li>
-              <li>
-                <a href="#demo" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Live Demo
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Resources */}
-          <div className="space-y-4">
-            <h3 className="font-semibold">Resources</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <a href={DOCS_URL} className="text-muted-foreground hover:text-foreground transition-colors">
-                  Documentation
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Contributing
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Community */}
-          <div className="space-y-4">
-            <h3 className="font-semibold">Community</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <a href={GITHUB_URL} className="text-muted-foreground hover:text-foreground transition-colors">
-                  GitHub
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Twitter
-                </a>
-              </li>
-            </ul>
-          </div>
+          ))}
         </div>
 
-        <Separator className="my-8" />
-
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-6 text-sm text-muted-foreground">
-            <div className="flex items-center gap-1">
-              <Scale className="w-4 h-4" />
-              <span>MIT License</span>
-            </div>
-          </div>
-
-          <div className="text-sm text-muted-foreground">
-            © 2025 Devora. All rights reserved.
-          </div>
+        <div className="mt-14 pt-6 border-t border-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-muted-foreground">
+          <span>MIT &middot; &copy; {new Date().getFullYear()} Devora contributors</span>
+          <span className="font-mono tracking-wider">/dev/null was here</span>
         </div>
       </div>
     </footer>
