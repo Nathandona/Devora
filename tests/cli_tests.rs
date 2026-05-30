@@ -41,7 +41,6 @@ fn list_shows_status_board() {
     assert!(out.contains("rust"));
     assert!(out.contains("stable"));
     assert!(out.contains("c++"));
-    assert!(out.contains("paused"));
     assert!(out.contains("wishlist"));
 }
 

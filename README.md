@@ -78,6 +78,16 @@ my-project
 created my-project in 0.42s
 ```
 
+Or scaffold a C++ project (CMake, with vendored doctest tests that build offline):
+
+```bash
+devora new my-app cpp
+cd my-app
+cmake -B build
+cmake --build build
+ctest --test-dir build
+```
+
 ## Features
 
 | Capability | What it gives you |
@@ -99,7 +109,7 @@ devora list
 
 ```
 stable     rust          1 template
-paused     c++           templates being rethought
+stable     c++           1 template
 wishlist   go            open to contributions
 wishlist   python        open to contributions
 wishlist   typescript    open to contributions
@@ -306,9 +316,9 @@ devora/
 
 ## Roadmap
 
-Devora ships Rust today. C++ is paused while its templates are reworked. Other
-languages are on the wishlist and open to contributions. There is no fixed
-calendar; run `devora list` for the current status board.
+Devora ships Rust and C++ today. Other languages are on the wishlist and open
+to contributions. There is no fixed calendar; run `devora list` for the current
+status board.
 
 ## Contributing
 

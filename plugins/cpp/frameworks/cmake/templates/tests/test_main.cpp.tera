@@ -1,8 +1,6 @@
-#include <catch2/catch_test_macros.hpp>
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include "doctest.h"
 
-TEST_CASE("Basic functionality", "[basic]") {
-    SECTION("Simple test") {
-        REQUIRE(2 + 3 == 5);
-        REQUIRE(1 == 1);
-    }
+TEST_CASE("arithmetic sanity") {
+    CHECK(2 + 3 == 5);
 }

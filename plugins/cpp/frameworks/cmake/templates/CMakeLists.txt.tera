@@ -1,139 +1,34 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.20)
 
-project({{ project_name }}
-    VERSION 1.0.0
-    DESCRIPTION "{{ description | default(value = "A C++ project") }}"
+project({{ project_slug }}
+    VERSION 0.1.0
+    DESCRIPTION "{{ description | default(value=project_name) }}"
     LANGUAGES CXX)
 
-# Set C++ standard
-{% set cpp_version = cpp_standard | default(value = "C++17") | replace(from = "C++", to = "") %}
-set(CMAKE_CXX_STANDARD {{ cpp_version }})
+set(CMAKE_CXX_STANDARD {{ cpp_standard }})
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Set build type
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE {{ build_type }})
+# Default to a Release build when the caller did not pick one.
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()
 
-# Compiler-specific options
-if(MSVC)
-    add_compile_options(/W4)
-else()
-    add_compile_options(-Wall -Wextra -Wpedantic)
-endif()
+add_executable({{ project_slug }} src/main.cpp)
 
-{% if project_type == "executable" %}
-# Executable target
-add_executable({{ project_slug }})
-target_sources({{ project_slug }}
-    PRIVATE
-        src/main.cpp
-)
+target_compile_options({{ project_slug }} PRIVATE
+    $<$<CXX_COMPILER_ID:MSVC>:/W4>
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall;-Wextra;-Wpedantic>)
 
-# Include directories
-target_include_directories({{ project_slug }}
-    PRIVATE
-        include
-)
-
-{% elif project_type == "library" %}
-# Library target
-add_library({{ project_slug }})
-target_sources({{ project_slug }}
-    PRIVATE
-        src/{{ project_slug }}.cpp
-    PUBLIC
-        include/{{ project_slug }}/{{ project_slug }}.hpp
-)
-
-# Include directories
-target_include_directories({{ project_slug }}
-    PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>
-    PRIVATE
-        src
-)
-
-# Set library properties
-set_target_properties({{ project_slug }} PROPERTIES
-    VERSION ${PROJECT_VERSION}
-    SOVERSION ${PROJECT_VERSION_MAJOR}
-)
-
-{% else %} {# header-only #}
-# Header-only library interface
-add_library({{ project_slug }} INTERFACE)
-target_include_directories({{ project_slug }}
-    INTERFACE
-        include
-)
-
-{% endif %}
+install(TARGETS {{ project_slug }} RUNTIME DESTINATION bin)
 
 {% if include_tests %}
-# Enable testing
 enable_testing()
 
-# Find Catch2 (or add as subdirectory)
-find_package(Catch2 QUIET)
-if(NOT Catch2_FOUND)
-    # Add Catch2 as a subdirectory if not found
-    include(FetchContent)
-    FetchContent_Declare(
-        Catch2
-        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-        GIT_TAG        v3.4.0
-    )
-    FetchContent_MakeAvailable(Catch2)
-endif()
+# doctest ships as a single header vendored under tests/, so the test suite
+# builds offline with no package manager or network fetch.
+add_executable({{ project_slug }}_tests tests/test_main.cpp)
+target_include_directories({{ project_slug }}_tests PRIVATE tests)
 
-# Test executable
-add_executable(tests)
-target_sources(tests
-    PRIVATE
-        tests/test_main.cpp
-)
-
-target_link_libraries(tests
-    PRIVATE
-        Catch2::Catch2WithMain
-        {% if project_type == "library" %}{{ project_slug }}{% endif %}
-)
-
-# Include directories for tests
-target_include_directories(tests
-    PRIVATE
-        include
-        src
-)
-
-# Add tests
-add_test(NAME AllTests COMMAND tests)
-
-{% endif %}
-
-# Installation
-{% if project_type == "executable" %}
-install(TARGETS {{ project_slug }}
-    RUNTIME DESTINATION bin
-)
-{% elif project_type == "library" %}
-install(TARGETS {{ project_slug }}
-    EXPORT {{ project_name }}Targets
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION bin
-)
-
-install(DIRECTORY include/
-    DESTINATION include
-)
-
-install(EXPORT {{ project_name }}Targets
-    FILE {{ project_name }}Targets.cmake
-    NAMESPACE {{ project_name }}::
-    DESTINATION lib/cmake/{{ project_name }}
-)
+add_test(NAME {{ project_slug }}_tests COMMAND {{ project_slug }}_tests)
 {% endif %}

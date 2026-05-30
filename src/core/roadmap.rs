@@ -22,8 +22,8 @@ pub static ROADMAP: &[LangStatus] = &[
     },
     LangStatus {
         name: "c++",
-        state: "paused",
-        note: "templates being rethought",
+        state: "stable",
+        note: "1 template",
     },
     LangStatus {
         name: "go",

@@ -337,21 +337,9 @@ impl TemplateGenerator {
 
         for conditional_file in conditional_files {
             if clean_path == conditional_file.path {
-                let should_include =
-                    self.evaluate_condition(&conditional_file.condition, context)?;
-                if let Some(description) = &conditional_file.description {
-                    println!(
-                        "Conditional file '{}': {} -> {}",
-                        clean_path,
-                        description,
-                        if should_include {
-                            "included"
-                        } else {
-                            "excluded"
-                        }
-                    );
-                }
-                return Ok(should_include);
+                // Quiet by design: keeps `new` output matching the website
+                // animation and keeps `--json` stdout valid for agents.
+                return self.evaluate_condition(&conditional_file.condition, context);
             }
         }
 

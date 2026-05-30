@@ -2,26 +2,17 @@
 id = "cmake"
 name = "CMake"
 version = "1.0.0"
-description = "C++ project with CMake build system"
+description = "C++ project with a CMake build system"
 
 [variables]
 description = { description = "Project description", required = false }
 license = { description = "Project license", default = "MIT", required = false }
-cpp_standard = { description = "C++ standard", default = "C++17", required = false, allowed_values = ["C++14", "C++17", "C++20", "C++23"] }
-project_type = { description = "Project type", default = "executable", required = false, allowed_values = ["executable", "library", "header-only"] }
-include_tests = { description = "Include test setup with Catch2", default = true, required = false }
-include_examples = { description = "Include examples directory", default = false, required = false }
-build_type = { description = "Default build type", default = "Release", required = false, allowed_values = ["Debug", "Release", "RelWithDebInfo"] }
-initialize_git = { description = "Initialize git repository", default = true, required = false }
+cpp_standard = { description = "C++ standard", default = "17", required = false, allowed_values = ["14", "17", "20", "23"] }
+include_tests = { description = "Include a doctest test setup", default = true, required = false }
+initialize_git = { description = "Initialize a git repository", default = true, required = false }
 
-[[post_hooks]]
-command = "cmake -B build -DCMAKE_BUILD_TYPE={{build_type}}"
-description = "Configure CMake project"
-
-[[post_hooks]]
-command = "cmake --build build --config {{build_type}}"
-description = "Build the project"
-
+# Only git init runs on generate. No compile step: scaffolding stays fast and
+# works without a C++ toolchain installed (the README documents how to build).
 [[post_hooks]]
 command = "devora_git_init"
 description = "Initialize git repository"
@@ -30,15 +21,16 @@ condition = "initialize_git == true"
 [[conditional_files]]
 path = "tests/test_main.cpp"
 condition = "include_tests == true"
-description = "Include test file when tests are enabled"
+description = "doctest test file, included when tests are enabled"
 
 [[conditional_files]]
-path = "examples/basic_example.cpp"
-condition = "include_examples == true"
-description = "Include example when examples are enabled"
+path = "tests/doctest.h"
+condition = "include_tests == true"
+description = "Vendored doctest single header, included when tests are enabled"
 
+# Shown as the build steps a user runs after generation.
 init_commands = [
-    "cmake -B build -DCMAKE_BUILD_TYPE={{build_type}}",
-    "cmake --build build --config {{build_type}}",
-    "{% if project_type == 'executable' %}./build/{{project_slug}}{% endif %}"
+    "cmake -B build",
+    "cmake --build build",
+    "ctest --test-dir build",
 ]

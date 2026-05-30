@@ -65,7 +65,7 @@ export const TERMINAL_SEQUENCES: TerminalSequence[] = [
     lines: [
       { kind: 'command', text: 'devora list' },
       { kind: 'output',  text: 'stable     rust          1 template' },
-      { kind: 'muted',   text: 'paused     c++           templates being rethought' },
+      { kind: 'output',  text: 'stable     c++           1 template' },
       { kind: 'muted',   text: 'wishlist   go            open to contributions' },
       { kind: 'muted',   text: 'wishlist   python        open to contributions' },
       { kind: 'muted',   text: 'wishlist   typescript    open to contributions' },
@@ -128,7 +128,7 @@ export interface LangRow {
 
 export const LANGUAGES: LangRow[] = [
   { name: 'Rust',       state: 'stable',   note: 'Single template, full hook system.' },
-  { name: 'C++',        state: 'paused',   note: 'Templates removed. Direction being rethought.' },
+  { name: 'C++',        state: 'stable',   note: 'CMake template with vendored doctest tests.' },
   { name: 'Go',         state: 'wishlist', note: 'Open to contributions.' },
   { name: 'Python',     state: 'wishlist', note: 'Open to contributions.' },
   { name: 'TypeScript', state: 'wishlist', note: 'Open to contributions.' },
