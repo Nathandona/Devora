@@ -1,6 +1,6 @@
 [package]
 name = "devora"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Nathan Donadey <donadeyn@gmail.com>"]
 description = "A universal, modular project scaffolding framework"
