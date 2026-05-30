@@ -12,10 +12,14 @@ impl ContextBuilder {
         let mut builtins = HashMap::new();
 
         // Add built-in variables
-        builtins.insert("date".to_string(),
-            Value::String(chrono::Utc::now().format("%Y-%m-%d").to_string()));
-        builtins.insert("year".to_string(),
-            Value::String(chrono::Utc::now().format("%Y").to_string()));
+        builtins.insert(
+            "date".to_string(),
+            Value::String(chrono::Utc::now().format("%Y-%m-%d").to_string()),
+        );
+        builtins.insert(
+            "year".to_string(),
+            Value::String(chrono::Utc::now().format("%Y").to_string()),
+        );
 
         // Try to get git config for author info
         if let Ok(name) = get_git_config("user.name") {
@@ -37,9 +41,14 @@ impl ContextBuilder {
         let mut context = Map::new();
 
         // Add project-specific built-ins
-        context.insert("project_name".to_string(), Value::String(project_name.to_string()));
-        context.insert("project_slug".to_string(),
-            Value::String(slugify(project_name)));
+        context.insert(
+            "project_name".to_string(),
+            Value::String(project_name.to_string()),
+        );
+        context.insert(
+            "project_slug".to_string(),
+            Value::String(slugify(project_name)),
+        );
 
         // Add system built-ins
         for (key, value) in &self.builtins {
@@ -49,7 +58,7 @@ impl ContextBuilder {
         // Add user-provided variables
         for (name, var_def) in variables {
             if let Some(value) = provided_vars.get(name) {
-                context.insert(name.clone(), Value::String(value.clone()));
+                context.insert(name.clone(), coerce_value(value));
             } else if let Some(default) = &var_def.default {
                 // Try to resolve default value
                 if let Value::String(template) = default {
@@ -95,6 +104,23 @@ impl ContextBuilder {
     }
 }
 
+impl Default for ContextBuilder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+/// Coerce a CLI-provided string value into the most useful JSON type so that
+/// Tera conditionals behave correctly (Tera treats any non-empty string as
+/// truthy, so `include_tests=false` must become a real boolean, not "false").
+fn coerce_value(value: &str) -> Value {
+    match value {
+        "true" => Value::Bool(true),
+        "false" => Value::Bool(false),
+        _ => Value::String(value.to_string()),
+    }
+}
+
 fn slugify(name: &str) -> String {
     name.to_lowercase()
         .chars()
@@ -108,7 +134,7 @@ fn slugify(name: &str) -> String {
 
 fn get_git_config(key: &str) -> Result<String> {
     let output = std::process::Command::new("git")
-        .args(&["config", "--global", key])
+        .args(["config", "--global", key])
         .output()?;
 
     if output.status.success() {

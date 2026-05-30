@@ -25,7 +25,7 @@ function classFor(kind: TerminalLine['kind']) {
 
 function prefixFor(kind: TerminalLine['kind']) {
   if (kind === 'command') return <span className="text-muted-foreground select-none">{PROMPT} ❯ </span>;
-  if (kind === 'success') return <span className="text-foreground/60 select-none">  ✓ </span>;
+  if (kind === 'success') return null;
   if (kind === 'output')  return <span className="text-foreground/40 select-none">  · </span>;
   if (kind === 'muted')   return <span className="text-foreground/30 select-none">  · </span>;
   return null;

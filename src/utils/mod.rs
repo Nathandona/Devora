@@ -1,7 +1,7 @@
-pub mod fs;
 pub mod executor;
+pub mod fs;
 pub mod git;
 
-pub use fs::*;
 pub use executor::*;
+pub use fs::*;
 pub use git::*;

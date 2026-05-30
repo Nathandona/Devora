@@ -58,7 +58,7 @@ export class GitHubClient {
               ...contributor,
               name: userDetail.name || contributor.login
             };
-          } catch (error) {
+          } catch {
             // Fallback to login name if user detail fetch fails
             return {
               ...contributor,

@@ -1,16 +1,22 @@
 use crate::error::{DevoraError, Result};
-use std::process::Command;
 use std::collections::HashMap;
+use std::process::Command;
 
 pub fn execute_command(
     command: &str,
     working_dir: &std::path::Path,
     env_vars: Option<&HashMap<String, String>>,
 ) -> Result<String> {
-    let mut cmd = Command::new("sh");
-    cmd.arg("-c")
-       .arg(command)
-       .current_dir(working_dir);
+    let mut cmd = if cfg!(windows) {
+        let mut c = Command::new("cmd");
+        c.arg("/C").arg(command);
+        c
+    } else {
+        let mut c = Command::new("sh");
+        c.arg("-c").arg(command);
+        c
+    };
+    cmd.current_dir(working_dir);
 
     // Set environment variables
     if let Some(env_vars) = env_vars {

@@ -1,6 +1,6 @@
-export const INSTALL_COMMAND = 'curl -sSL https://install.devora.sh | sh';
-export const GITHUB_URL = 'https://github.com/Nathandona/devora';
-export const DOCS_URL = 'https://docs.devora.sh';
+export const INSTALL_COMMAND = 'cargo install --git https://github.com/Nathandona/Devora';
+export const GITHUB_URL = 'https://github.com/Nathandona/Devora';
+export const DOCS_URL = `${GITHUB_URL}#readme`;
 export const CONTRIBUTING_URL = `${GITHUB_URL}/blob/main/CONTRIBUTING.md`;
 export const ISSUES_URL = `${GITHUB_URL}/issues`;
 export const GOOD_FIRST_ISSUE_URL = `${GITHUB_URL}/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22`;
@@ -24,9 +24,9 @@ export const TERMINAL_SEQUENCES: TerminalSequence[] = [
       { kind: 'muted',   text: 'Resolving plugin: rust@0.1.0' },
       { kind: 'muted',   text: 'Rendering templates …' },
       { kind: 'tree',    text: 'my-app' },
+      { kind: 'tree',    text: '├─ .gitignore' },
       { kind: 'tree',    text: '├─ Cargo.toml' },
       { kind: 'tree',    text: '├─ README.md' },
-      { kind: 'tree',    text: '├─ .gitignore' },
       { kind: 'tree',    text: '└─ src' },
       { kind: 'tree',    text: '   └─ main.rs' },
       { kind: 'success', text: 'created my-app in 0.42s' },
@@ -56,36 +56,35 @@ export interface Feature {
 export const FEATURES: Feature[] = [
   {
     title: 'Plugin architecture',
-    body: 'Languages live in plugins, not in the binary. Drop one in, restart, it works. No fork, no rebuild.',
+    body: 'Every language is a self-contained plugin — a manifest plus Tera templates. The engine stays generic; languages never touch its code.',
     code: [
-      '$ devora plugin add ./rust-plugin',
-      '  loaded rust@0.1.0',
-      '$ devora new my-app rust',
-      '  created my-app in 0.42s',
+      'plugins/rust/',
+      '├─ manifest.toml',
+      '└─ frameworks/base/',
+      '   ├─ manifest.toml',
+      '   └─ templates/',
     ].join('\n'),
   },
   {
-    title: 'Templates with prompts',
-    body: 'Templates can ask for input and branch on the answer. No more silently scaffolded files you didn\'t want.',
+    title: 'Typed template variables',
+    body: 'Templates declare variables with defaults and prompts. Pass them with --var or answer interactively; conditionals branch on the values.',
     code: [
-      '# template.toml',
-      '[[prompt]]',
-      'name    = "use_tokio"',
-      'message = "Add tokio runtime?"',
-      'kind    = "confirm"',
-      'default = true',
+      '# manifest.toml',
+      '[variables]',
+      'license       = { default = "MIT" }',
+      'include_tests = { default = true }',
     ].join('\n'),
   },
   {
     title: 'Lifecycle hooks',
-    body: 'Run formatters, init git, install deps — declarative, composable, skippable per-run with --no-hooks.',
+    body: 'Run formatters, init git, install deps after generation — declarative, cross-platform, and skippable per run with --no-hooks.',
     code: [
-      '# devora.toml',
-      '[hooks]',
-      'post_create = [',
-      '  "git init",',
-      '  "cargo fmt",',
-      ']',
+      '# manifest.toml',
+      '[[post_hooks]]',
+      'command = "cargo fmt"',
+      '',
+      '[[post_hooks]]',
+      'command = "devora_git_init"',
     ].join('\n'),
   },
 ];

@@ -19,11 +19,6 @@ command = "devora_git_init"
 description = "Initialize git repository"
 condition = "initialize_git == true"
 
-[[conditional_files]]
-path = "src/tests.rs"
-condition = "include_tests == true"
-description = "Include test module when tests are enabled"
-
 init_commands = [
     "cargo run",
     "cargo build"

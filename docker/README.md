@@ -4,13 +4,13 @@ This directory contains Docker configurations for Devora, providing containerize
 
 ## Available Images
 
-### 🏷️ Image Variants
+### Image Variants
 
 - **`ghcr.io/Nathandona/devora:latest-debian`** - Default Debian-based image
 - **`ghcr.io/Nathandona/devora:latest-alpine`** - Minimal Alpine-based image
 - **`ghcr.io/Nathandona/devora:latest`** - Multi-architecture image (Debian-based)
 
-### 🏗️ Architecture Support
+### Architecture Support
 
 - `linux/amd64` - Intel/AMD 64-bit
 - `linux/arm64` - ARM 64-bit (Apple Silicon, ARM servers)
@@ -131,11 +131,11 @@ docker buildx build -f docker/Dockerfile.debian --platform linux/amd64,linux/arm
 
 ## Security
 
-- ✅ Non-root user execution
-- ✅ Minimal base images
-- ✅ Regular security updates
-- ✅ Vulnerability scanning
-- ✅ Signed images
+- Non-root user execution
+- Minimal base images
+- Regular security updates
+- Vulnerability scanning
+- Signed images
 
 ## Support
 

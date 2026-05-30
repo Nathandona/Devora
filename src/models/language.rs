@@ -1,6 +1,6 @@
+use crate::models::framework::TemplateVariable;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use crate::models::framework::TemplateVariable;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LanguageManifest {

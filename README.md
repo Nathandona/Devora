@@ -11,20 +11,23 @@
 </p>
 
 <p align="center">
-  Devora combines the best aspects of Cargo, Create-React-App, and Cookiecutter into a single, extensible tool that can scaffold projects across any language and framework through a plugin-based architecture.
+  Devora combines the best aspects of Cargo, Create-React-App, and Cookiecutter into a single, extensible tool that scaffolds projects across languages and frameworks through a plugin-based architecture.
 </p>
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Installation
 
+Install the latest from the repository. Plugins are embedded in the binary, so
+the installed `devora` works from any directory with no extra files:
+
 ```bash
-cargo install devora
+cargo install --git https://github.com/Nathandona/Devora
 ```
 
-### Your First Project
+> Once published to crates.io this becomes `cargo install devora`.
 
-Create a new Rust project in seconds:
+### Your First Project
 
 ```bash
 devora new my-project rust
@@ -33,60 +36,59 @@ cargo run
 ```
 
 Output:
+
 ```
-🚀 Creating new rust project: my-project
-📁 Framework: base
-Executing hook: cargo fmt
-✅ Project 'my-project' created successfully at: my-project
-
-Next steps:
-  cd my-project
-  cargo run
-  cargo build
+Resolving plugin: rust@0.1.0
+Rendering templates …
+my-project
+├─ .gitignore
+├─ Cargo.toml
+├─ README.md
+└─ src
+   └─ main.rs
+created my-project in 0.42s
 ```
 
-## 📋 Features
+## Features
 
-- **🔌 Plugin-Based Architecture**: Easy to add new languages and frameworks
-- **🎨 Template Engine**: Powerful Tera-based templating with variable substitution
-- **⚡ Interactive Mode**: Smart prompts for required configuration
-- **🔧 Hook System**: Pre/post-generation commands (git init, cargo fmt, etc.)
-- **📦 Hot-Reloading**: No recompilation needed for new plugins
-- **🌍 Multi-Language Support**: Extensible to any programming language
-- **📁 Smart File Generation**: Handles nested directories and binary files
+- **Plugin-based architecture**: each language is a self-contained plugin (a manifest plus templates); the engine stays generic.
+- **Template engine**: Tera-based templating with variable substitution and inheritance.
+- **Interactive mode**: prompts for required configuration, or run fully non-interactive.
+- **Hook system**: pre/post-generation commands (git init, cargo fmt, …), skippable with `--no-hooks`.
+- **Self-contained binary**: plugins are baked in at build time via `include_dir!` — no runtime plugin directory required.
+- **Agent-friendly**: `--json` output and stable exit codes for scripting and CI.
 
-## 🎯 Usage
+## Usage
 
-### List Available Languages
+### List languages
 
 ```bash
 devora list
 ```
 
 ```
-📋 Available Languages and Frameworks
-=====================================
-Available languages:
-  rust - The Rust Programming Language
+stable     rust          1 template
+paused     c++           templates being rethought
+wishlist   go            open to contributions
+wishlist   python        open to contributions
+wishlist   typescript    open to contributions
+wishlist   zig           open to contributions
 ```
 
-### List Frameworks for a Language
+### List frameworks for a language
 
 ```bash
 devora list rust
 ```
 
 ```
-📋 Available Languages and Frameworks
-=====================================
-Frameworks for language: rust
-  base
+base
 ```
 
-### Create a New Project
+### Create a new project
 
 ```bash
-# Interactive mode (prompts for missing info)
+# Interactive mode (prompts for missing required info)
 devora new my-app rust
 
 # Non-interactive mode
@@ -100,9 +102,12 @@ devora new my-app rust --var="description=My awesome project" --var="license=Apa
 
 # Dry run (preview without creating files)
 devora new my-app rust --dry-run
+
+# Skip pre/post hooks (formatters, git init)
+devora new my-app rust --non-interactive --no-hooks
 ```
 
-### Get Information
+### Get information
 
 ```bash
 # Language information
@@ -112,29 +117,59 @@ devora info rust
 devora info rust base
 ```
 
-## 🏗️ Architecture
+## Agent / scripting mode
+
+Every command accepts `--json` for machine-readable output and stable exit
+codes (`0` on success, non-zero on error with a `{"error": "..."}` envelope on
+stderr). Combined with `--non-interactive` and `--no-hooks`, this lets agents
+and CI drive Devora deterministically.
+
+```bash
+devora list --json
+devora info rust --json
+devora new my-app rust --json --non-interactive --no-hooks
+```
+
+```json
+{
+  "name": "my-app",
+  "language": "rust",
+  "framework": "base",
+  "path": "my-app",
+  "files": [".gitignore", "Cargo.toml", "README.md", "src/main.rs"],
+  "dry_run": false,
+  "hooks_skipped": true,
+  "elapsed_ms": 4
+}
+```
+
+`--json` implies `--non-interactive` (machine mode never prompts).
+
+## Architecture
 
 Devora uses a three-layer modularity system:
 
 ```
-LANGUAGE → FRAMEWORK → TEMPLATE
+LANGUAGE -> FRAMEWORK -> TEMPLATE
 ```
 
-### Language Plugins
+### Language plugins
+
 Located at `plugins/{language}/manifest.toml`:
 
 ```toml
 [language]
 id = "rust"
 name = "Rust"
-version = "1.0.0"
+version = "0.1.0"
 description = "The Rust Programming Language"
 
 default_framework = "base"
-frameworks = ["base", "clap", "axum"]
+frameworks = ["base"]
 ```
 
-### Framework Plugins
+### Framework plugins
+
 Located at `plugins/{language}/frameworks/{framework}/manifest.toml`:
 
 ```toml
@@ -147,73 +182,66 @@ description = "Basic Rust project structure"
 [variables]
 description = { description = "Project description", required = false }
 license = { description = "Project license", default = "MIT", required = false }
+include_tests = { description = "Include tests", default = true, required = false }
 
 [[post_hooks]]
 command = "cargo fmt"
 description = "Format code"
-
-init_commands = [
-    "cargo run",
-    "cargo build"
-]
 ```
 
-### Template Files
+### Template files
+
 Located at `plugins/{language}/frameworks/{framework}/templates/`:
 
-- **Tera Templates**: Files ending in `.tera` are processed with variable substitution
-- **Binary Files**: Other files are copied as-is
-- **Nested Directories**: Full directory structure is preserved
+- **Tera templates**: files ending in `.tera` are processed with variable substitution.
+- **Binary files**: other files are copied as-is.
+- **Nested directories**: the full directory structure is preserved.
+- Files named `base.*` and anything under `partials/` are used only for template inheritance/includes and are not emitted.
 
-## 🎨 Template Variables
+## Template variables
 
-### Built-in Variables
-- `project_name`: The project name (from command line)
-- `project_slug`: Sanitized project name for file paths
-- `author`: Author name from git config
-- `email`: Author email from git config
-- `date`: Current date (YYYY-MM-DD)
-- `year`: Current year
-- `framework`: Selected framework name
+### Built-in variables
 
-### Custom Variables
-Defined in framework manifests and can be provided via:
+- `project_name`: the project name (from the command line)
+- `project_slug`: sanitized project name for file paths
+- `author`: author name from git config
+- `email`: author email from git config
+- `date`: current date (YYYY-MM-DD)
+- `year`: current year
+- `framework`: selected framework name
+
+### Custom variables
+
+Defined in framework manifests and provided via:
+
 - Interactive prompts
-- Command line arguments (`--var="key=value"`)
-- Environment variables
-- Template references
+- Command-line arguments (`--var="key=value"`)
+- Defaults declared in the manifest
 
-### Template Example
+Boolean-looking values (`true`/`false`) passed via `--var` are coerced to real
+booleans so template conditionals behave correctly.
+
+### Template example
 
 `src/main.rs.tera`:
+
 ```rust
-{% if framework == "clap" %}
-use clap::Parser;
-
-#[derive(Parser)]
-#[command(name = "{{ project_slug }}")]
-#[command(about = "{{ project_name }}")]
-{% if description %}
-#[command(long_about = "{{ description }}")]
-{% endif %}
-struct Cli {
-    /// Name of the person to greet
-    #[arg(short, long)]
-    name: String,
-}
-
 fn main() {
-    let cli = Cli::parse();
-    println!("Hello, {}!", cli.name);
+    println!("Hello from {{ project_name }}!");
 }
-{% else %}
-fn main() {
-    println!("Hello, world!");
+{% if include_tests %}
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn it_works() {
+        assert_eq!(2 + 2, 4);
+    }
 }
 {% endif %}
 ```
 
 `Cargo.toml.tera`:
+
 ```toml
 [package]
 name = "{{ project_slug }}"
@@ -230,68 +258,49 @@ license = "{{ license }}"
 {% endif %}
 
 [dependencies]
-{% if framework == "clap" %}
-clap = { version = "4.4", features = ["derive"] }
-{% endif %}
 ```
 
-## 🔌 Adding New Plugins
+## Adding new plugins
 
-### Adding a New Language
+Plugins are embedded into the binary at build time, so adding a language or
+framework means editing the `plugins/` tree and rebuilding (`cargo build`).
 
-1. Create language directory: `plugins/python/`
-2. Add language manifest: `plugins/python/manifest.toml`
+### Add a new language
+
+1. Create the language directory: `plugins/python/`
+2. Add the language manifest: `plugins/python/manifest.toml`
 3. Create at least one framework: `plugins/python/frameworks/base/`
-4. Add framework manifest and templates
+4. Add the framework manifest and templates
+5. Rebuild
 
-### Adding a New Framework
+### Add a new framework
 
-1. Create framework directory: `plugins/rust/frameworks/axum/`
-2. Add framework manifest: `plugins/rust/frameworks/axum/manifest.toml`
-3. Create templates directory and files
-4. Define framework-specific variables
-5. Add post-generation hooks if needed
+1. Create the framework directory: `plugins/rust/frameworks/<name>/`
+2. Add the framework manifest: `plugins/rust/frameworks/<name>/manifest.toml`
+3. Create the templates directory and files
+4. Define framework-specific variables and hooks as needed
+5. Rebuild
 
-### Example: Python Flask Framework
+## Development
 
-`plugins/python/frameworks/flask/manifest.toml`:
-```toml
-[framework]
-id = "flask"
-name = "Flask"
-version = "1.0.0"
-description = "Flask web framework"
-
-[variables]
-app_name = { description = "Flask app name", default = "app", required = false }
-database = { description = "Database type", default = "sqlite", required = false }
-
-[[post_hooks]]
-command = "python -m venv venv"
-description = "Create virtual environment"
-
-[[post_hooks]]
-command = "source venv/bin/activate && pip install flask"
-description = "Install Flask"
-```
-
-## 🛠️ Development
-
-### Building from Source
+### Building from source
 
 ```bash
-git clone https://github.com/yourusername/devora.git
-cd devora
+git clone https://github.com/Nathandona/Devora.git
+cd Devora
 cargo build --release
 ```
 
-### Running Tests
+> Plugins under `plugins/` are embedded into the binary at build time via
+> `include_dir!`, so the compiled `devora` is fully self-contained.
+
+### Running tests
 
 ```bash
 cargo test
 ```
 
-### Project Structure
+### Project structure
 
 ```
 devora/
@@ -300,102 +309,62 @@ devora/
 │   ├── lib.rs               # Library interface
 │   ├── cli.rs               # Command-line interface definitions
 │   ├── core/                # Core functionality
-│   │   ├── registry.rs      # Plugin discovery and management
-│   │   ├── generator.rs     # Template rendering engine
-│   │   └── context.rs       # Template variable builder
+│   │   ├── registry.rs      # Plugin discovery (from embedded tree)
+│   │   ├── generator.rs     # Template rendering engine + hooks
+│   │   ├── context.rs       # Template variable builder
+│   │   ├── embedded.rs      # Plugins baked into the binary (include_dir!)
+│   │   └── roadmap.rs       # Language status board for `devora list`
 │   ├── models/              # Data structures
-│   │   ├── language.rs      # Language manifest types
-│   │   ├── framework.rs     # Framework manifest types
-│   │   └── template.rs      # Template metadata types
-│   ├── commands/            # CLI command implementations
-│   │   ├── new.rs           # Project creation
-│   │   ├── list.rs          # List languages/frameworks
-│   │   └── info.rs          # Show information
+│   ├── commands/            # CLI command implementations (new/list/info)
 │   ├── error.rs             # Custom error types
 │   └── utils/               # Utility functions
-├── plugins/                 # Plugin directory
-│   └── rust/                # Rust language plugin
-│       ├── manifest.toml    # Language manifest
-│       └── frameworks/      # Framework implementations
-│           └── base/        # Base framework
-│               ├── manifest.toml
-│               └── templates/
+├── plugins/                 # Plugin directory (embedded at build time)
+│   └── rust/
+│       ├── manifest.toml
+│       └── frameworks/base/
+│           ├── manifest.toml
+│           └── templates/
 ├── Cargo.toml
 └── README.md
 ```
 
-## 🤝 Contributing
+## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome. Please feel free to open an issue or submit a pull
+request.
 
-### How to Contribute
+Good places to start:
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+- **New language plugins**: add support for Go, Python, TypeScript, Zig, etc.
+- **Framework templates**: create templates for popular frameworks.
+- **Documentation**: improve this README and add guides.
+- **Tests**: extend the unit and integration test suite.
 
-### Areas for Contribution
+## Roadmap
 
-- **New Language Plugins**: Add support for Python, JavaScript, Go, etc.
-- **Framework Templates**: Create templates for popular frameworks
-- **Documentation**: Improve this README and add guides
-- **Tests**: Add unit and integration tests
-- **Features**: Implement advanced features from the roadmap
+Devora ships Rust today. C++ is paused while its templates are reworked. Other
+languages are on the wishlist and open to contributions — there is no fixed
+calendar. See `devora list` for the current status board.
 
-## 🗺️ Roadmap
-
-### Phase 1: Core Features ✅
-- [x] Basic plugin loading
-- [x] Template rendering with Tera
-- [x] Simple manifest system
-- [x] File generation
-- [x] Basic error handling
-
-### Phase 2: Enhanced UX (In Progress)
-- [x] Interactive variable prompts
-- [x] Better error messages with suggestions
-- [x] List and info commands
-- [x] Dry-run mode
-- [ ] Progress indicators
-- [ ] Colored output
-
-### Phase 3: Advanced Features
-- [ ] Pre-generation hooks (validation, checks)
-- [ ] Conditional file inclusion
-- [ ] Template inheritance
-- [ ] Variable validation
-- [ ] Git integration
-
-### Phase 4: Remote Capabilities
-- [ ] Remote template registry
-- [ ] GitHub/GitLab template sources
-- [ ] Template versioning
-- [ ] Automatic updates
-- [ ] Community template marketplace
-
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
-- **Tera** - Powerful template engine
-- **Clap** - Command line argument parsing
-- **Serde** - Serialization framework
-- **Dialoguer** - Interactive prompts
+- **Tera** - template engine
+- **Clap** - command-line argument parsing
+- **Serde** - serialization framework
+- **Dialoguer** - interactive prompts
 - Inspired by **Cargo**, **Create-React-App**, and **Cookiecutter**
 
-## 🔗 Links
+## Links
 
-- [Repository](https://github.com/yourusername/devora)
-- [Crates.io](https://crates.io/crates/devora)
-- [Documentation](https://docs.rs/devora)
-- [Issues](https://github.com/yourusername/devora/issues)
+- [Repository](https://github.com/Nathandona/Devora)
+- [Issues](https://github.com/Nathandona/Devora/issues)
 
 ---
 
 <p align="center">
-  <strong>Devora - Scaffold any project, any language, any framework. 🚀</strong>
+  <strong>Devora - scaffold any project, any language, any framework.</strong>
 </p>

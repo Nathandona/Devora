@@ -26,6 +26,9 @@ pub enum DevoraError {
     #[error("Serialization error: {0}")]
     SerializationError(#[from] toml::de::Error),
 
+    #[error("JSON error: {0}")]
+    JsonError(#[from] serde_json::Error),
+
     #[error("Dialoguer error: {0}")]
     DialoguerError(#[from] dialoguer::Error),
 

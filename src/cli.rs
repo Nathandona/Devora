@@ -5,6 +5,10 @@ use clap::{Parser, Subcommand};
 #[command(about = "A universal, modular project scaffolding framework")]
 #[command(version = "0.1.0")]
 pub struct Cli {
+    /// Emit machine-readable JSON instead of human output (implies --non-interactive)
+    #[arg(long, global = true)]
+    pub json: bool,
+
     #[command(subcommand)]
     pub command: Commands,
 }
@@ -43,6 +47,10 @@ pub struct NewArgs {
     #[arg(long)]
     pub non_interactive: bool,
 
+    /// Skip pre/post generation hooks (formatters, git init, …)
+    #[arg(long)]
+    pub no_hooks: bool,
+
     /// Variables in KEY=VALUE format
     #[arg(long, value_parser = parse_key_value)]
     pub var: Vec<(String, String)>,
@@ -69,8 +77,8 @@ pub struct InfoArgs {
 
 /// Parse key-value pairs in the format KEY=VALUE
 fn parse_key_value(s: &str) -> Result<(String, String), String> {
-    let (key, value) = s.split_once('=').ok_or_else(|| {
-        format!("Expected KEY=VALUE format, got: {}", s)
-    })?;
+    let (key, value) = s
+        .split_once('=')
+        .ok_or_else(|| format!("Expected KEY=VALUE format, got: {}", s))?;
     Ok((key.to_string(), value.to_string()))
 }

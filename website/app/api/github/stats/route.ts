@@ -1,16 +1,18 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getDevoraGitHubStats } from '@/lib/github-client';
 import { GitHubStatsResponse, GitHubStats } from '@/lib/github-types';
 
 // Fallback data for when API fails
+// Conservative fallback used only when the GitHub API is unavailable.
+// No invented stats or contributors — just the real repo identity.
 const fallbackData: GitHubStats = {
   repository: {
-    id: 123456789,
-    name: 'devora',
-    full_name: 'Nathandona/devora',
-    description: 'A powerful project scaffolding tool',
-    stargazers_count: 42,
-    forks_count: 8,
+    id: 0,
+    name: 'Devora',
+    full_name: 'Nathandona/Devora',
+    description: 'A universal, modular project scaffolding framework',
+    stargazers_count: 0,
+    forks_count: 0,
     language: 'Rust',
     updated_at: new Date().toISOString(),
     created_at: new Date().toISOString(),
@@ -18,38 +20,20 @@ const fallbackData: GitHubStats = {
   },
   contributors: [
     {
-      id: 123456,
+      id: 0,
       login: 'Nathandona',
       name: 'Nathan Donadey',
       avatar_url: 'https://github.com/Nathandona.png',
       html_url: 'https://github.com/Nathandona',
-      contributions: 100,
-      type: 'User'
-    },
-    {
-      id: 234567,
-      login: 'contributor1',
-      name: 'Alex Chen',
-      avatar_url: '',
-      html_url: 'https://github.com/contributor1',
-      contributions: 25,
-      type: 'User'
-    },
-    {
-      id: 345678,
-      login: 'contributor2',
-      name: 'Sarah Johnson',
-      avatar_url: '',
-      html_url: 'https://github.com/contributor2',
-      contributions: 15,
+      contributions: 1,
       type: 'User'
     }
   ],
-  total_contributors: 3,
+  total_contributors: 1,
   last_updated: new Date().toISOString()
 };
 
-export async function GET(request: NextRequest): Promise<NextResponse<GitHubStatsResponse>> {
+export async function GET(): Promise<NextResponse<GitHubStatsResponse>> {
   try {
     const stats = await getDevoraGitHubStats();
 

@@ -1,19 +1,22 @@
 use crate::cli::InfoArgs;
 use crate::core::PluginRegistry;
 use crate::error::Result;
-use std::path::PathBuf;
 
-pub async fn execute(args: InfoArgs) -> Result<()> {
-    // Initialize plugin registry
-    let plugins_dir = PathBuf::from("plugins");
-    let mut registry = PluginRegistry::new(&plugins_dir);
+pub async fn execute(args: InfoArgs, json: bool) -> Result<()> {
+    let mut registry = PluginRegistry::new();
     registry.discover()?;
 
     if let Some(framework_name) = args.framework {
-        // Show detailed framework information
-        show_framework_info(&registry, &args.language, &framework_name)?;
+        if json {
+            let manifest = registry.get_framework(&args.language, &framework_name)?;
+            println!("{}", serde_json::to_string_pretty(manifest)?);
+        } else {
+            show_framework_info(&registry, &args.language, &framework_name)?;
+        }
+    } else if json {
+        let manifest = registry.get_language(&args.language)?;
+        println!("{}", serde_json::to_string_pretty(manifest)?);
     } else {
-        // Show language information
         show_language_info(&registry, &args.language)?;
     }
 
@@ -23,22 +26,21 @@ pub async fn execute(args: InfoArgs) -> Result<()> {
 fn show_language_info(registry: &PluginRegistry, language_name: &str) -> Result<()> {
     let language_manifest = registry.get_language(language_name)?;
 
-    println!("📖 Language Information");
+    println!("Language Information");
     println!("═══════════════════════════════════════════════════════════════");
-    println!("🏷️  Name:     {}", language_manifest.language.name);
-    println!("🆔 ID:       {}", language_manifest.language.id);
-    println!("📅 Version:  {}", language_manifest.language.version);
-    println!("📝 Description: {}", language_manifest.language.description);
+    println!("Name:        {}", language_manifest.language.name);
+    println!("ID:          {}", language_manifest.language.id);
+    println!("Version:     {}", language_manifest.language.version);
+    println!("Description: {}", language_manifest.language.description);
 
     if let Some(default_framework) = &language_manifest.default_framework {
-        println!("🎯 Default Framework: {}", default_framework);
+        println!("Default framework: {}", default_framework);
     }
 
-    
     println!();
 
     // Show available frameworks
-    println!("🔧 Available Frameworks");
+    println!("Available Frameworks");
     println!("═══════════════════════════════════════════════════════════════");
 
     if let Some(frameworks) = &language_manifest.frameworks {
@@ -46,13 +48,16 @@ fn show_language_info(registry: &PluginRegistry, language_name: &str) -> Result<
             println!("No frameworks available for this language.");
         } else {
             for (i, framework_id) in frameworks.iter().enumerate() {
-                if let Ok(framework_manifest) = registry.get_framework(language_name, framework_id) {
-                    println!("{}. {} ({})",
-                            i + 1,
-                            framework_manifest.framework.name,
-                            framework_manifest.framework.id);
-                    println!("   📝 {}", framework_manifest.framework.description);
-                    println!("   📅 v{}", framework_manifest.framework.version);
+                if let Ok(framework_manifest) = registry.get_framework(language_name, framework_id)
+                {
+                    println!(
+                        "{}. {} ({})",
+                        i + 1,
+                        framework_manifest.framework.name,
+                        framework_manifest.framework.id
+                    );
+                    println!("   {}", framework_manifest.framework.description);
+                    println!("   v{}", framework_manifest.framework.version);
                     println!();
                 }
             }
@@ -62,44 +67,59 @@ fn show_language_info(registry: &PluginRegistry, language_name: &str) -> Result<
     }
 
     // Show usage example
-    println!("💡 Usage Examples");
+    println!("Usage Examples");
     println!("═══════════════════════════════════════════════════════════════");
     if let Some(default_framework) = &language_manifest.default_framework {
-        println!("devora new <project-name> {}                    # Use default framework", language_name);
-        println!("devora new <project-name> {} --framework {}     # Use specific framework", language_name, default_framework);
+        println!(
+            "devora new <project-name> {}                    # Use default framework",
+            language_name
+        );
+        println!(
+            "devora new <project-name> {} --framework {}     # Use specific framework",
+            language_name, default_framework
+        );
     }
 
     if let Some(frameworks) = &language_manifest.frameworks {
         for framework_id in frameworks {
-            println!("devora new <project-name> {} --framework {}    # Use {} framework",
-                    language_name, framework_id, framework_id);
+            println!(
+                "devora new <project-name> {} --framework {}    # Use {} framework",
+                language_name, framework_id, framework_id
+            );
         }
     }
 
-    println!("devora info {} <framework>                        # Get framework details", language_name);
+    println!(
+        "devora info {} <framework>                        # Get framework details",
+        language_name
+    );
 
     Ok(())
 }
 
-fn show_framework_info(registry: &PluginRegistry, language_name: &str, framework_name: &str) -> Result<()> {
+fn show_framework_info(
+    registry: &PluginRegistry,
+    language_name: &str,
+    framework_name: &str,
+) -> Result<()> {
     let framework_manifest = registry.get_framework(language_name, framework_name)?;
 
-    println!("🔧 Framework Information");
+    println!("Framework Information");
     println!("═══════════════════════════════════════════════════════════════");
-    println!("🏷️  Name:     {}", framework_manifest.framework.name);
-    println!("🆔 ID:       {}", framework_manifest.framework.id);
-    println!("📅 Version:  {}", framework_manifest.framework.version);
-    println!("📝 Description: {}", framework_manifest.framework.description);
+    println!("Name:        {}", framework_manifest.framework.name);
+    println!("ID:          {}", framework_manifest.framework.id);
+    println!("Version:     {}", framework_manifest.framework.version);
+    println!("Description: {}", framework_manifest.framework.description);
     println!();
 
     // Show variables
     if let Some(variables) = &framework_manifest.variables {
         if !variables.is_empty() {
-            println!("🔧 Configuration Variables");
+            println!("Configuration Variables");
             println!("═══════════════════════════════════════════════════════════════");
 
             for (name, var) in variables {
-                println!("📝 {}", name);
+                println!("{}", name);
                 println!("   Description: {}", var.description);
 
                 if let Some(prompt) = &var.prompt {
@@ -111,9 +131,9 @@ fn show_framework_info(registry: &PluginRegistry, language_name: &str, framework
                 }
 
                 if var.required {
-                    println!("   Required: ✅");
+                    println!("   Required: yes");
                 } else {
-                    println!("   Required: ❌");
+                    println!("   Required: no");
                 }
 
                 if let Some(condition) = &var.condition {
@@ -143,7 +163,7 @@ fn show_framework_info(registry: &PluginRegistry, language_name: &str, framework
     // Show hooks
     if let Some(pre_hooks) = &framework_manifest.pre_hooks {
         if !pre_hooks.is_empty() {
-            println!("⚡ Pre-Generation Hooks");
+            println!("Pre-Generation Hooks");
             println!("═══════════════════════════════════════════════════════════════");
 
             for (i, hook) in pre_hooks.iter().enumerate() {
@@ -155,7 +175,7 @@ fn show_framework_info(registry: &PluginRegistry, language_name: &str, framework
 
     if let Some(post_hooks) = &framework_manifest.post_hooks {
         if !post_hooks.is_empty() {
-            println!("🔧 Post-Generation Hooks");
+            println!("Post-Generation Hooks");
             println!("═══════════════════════════════════════════════════════════════");
 
             for (i, hook) in post_hooks.iter().enumerate() {
@@ -168,7 +188,7 @@ fn show_framework_info(registry: &PluginRegistry, language_name: &str, framework
     // Show conditional files
     if let Some(conditional_files) = &framework_manifest.conditional_files {
         if !conditional_files.is_empty() {
-            println!("📁 Conditional Files");
+            println!("Conditional Files");
             println!("═══════════════════════════════════════════════════════════════");
 
             for (i, file) in conditional_files.iter().enumerate() {
@@ -185,7 +205,7 @@ fn show_framework_info(registry: &PluginRegistry, language_name: &str, framework
     // Show requirements
     if let Some(requirements) = &framework_manifest.requirements {
         if !requirements.is_empty() {
-            println!("📋 Requirements");
+            println!("Requirements");
             println!("═══════════════════════════════════════════════════════════════");
 
             for (i, requirement) in requirements.iter().enumerate() {
@@ -196,13 +216,17 @@ fn show_framework_info(registry: &PluginRegistry, language_name: &str, framework
     }
 
     // Show usage example
-    println!("💡 Usage Example");
+    println!("Usage Example");
     println!("═══════════════════════════════════════════════════════════════");
-    println!("devora new <project-name> {} --framework {}", language_name, framework_name);
+    println!(
+        "devora new <project-name> {} --framework {}",
+        language_name, framework_name
+    );
 
     // Add example variables if available
     if let Some(variables) = &framework_manifest.variables {
-        let required_vars: Vec<_> = variables.iter()
+        let required_vars: Vec<_> = variables
+            .iter()
             .filter(|(_, var)| var.required)
             .map(|(name, _)| format!("--var {}=<value>", name))
             .collect();
@@ -211,7 +235,8 @@ fn show_framework_info(registry: &PluginRegistry, language_name: &str, framework
             println!("Required variables: {}", required_vars.join(" "));
         }
 
-        let optional_vars: Vec<_> = variables.iter()
+        let optional_vars: Vec<_> = variables
+            .iter()
             .filter(|(_, var)| !var.required && var.default.is_none())
             .map(|(name, var)| {
                 if let Some(prompt) = &var.prompt {

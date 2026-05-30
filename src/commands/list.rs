@@ -1,37 +1,51 @@
 use crate::cli::ListArgs;
-use crate::error::DevoraError;
+use crate::core::roadmap::ROADMAP;
+use crate::core::PluginRegistry;
+use crate::error::Result;
 
-pub async fn execute(args: ListArgs) -> Result<(), DevoraError> {
-    println!("📋 Available Languages and Frameworks");
-    println!("=====================================");
-
-    // Initialize plugin registry
-    let plugins_dir = std::path::PathBuf::from("plugins");
-    let mut registry = crate::core::PluginRegistry::new(&plugins_dir);
+pub async fn execute(args: ListArgs, json: bool) -> Result<()> {
+    let mut registry = PluginRegistry::new();
     registry.discover()?;
 
+    // `devora list <language>` → frameworks for that language.
     if let Some(language) = args.language {
-        println!("Frameworks for language: {}", language);
-        let frameworks = registry.list_frameworks(&language);
-        if frameworks.is_empty() {
-            println!("  No frameworks found for this language");
+        let mut frameworks = registry.list_frameworks(&language);
+        frameworks.sort();
+
+        if json {
+            let out = serde_json::json!({
+                "language": language,
+                "frameworks": frameworks,
+            });
+            println!("{}", serde_json::to_string_pretty(&out)?);
+        } else if frameworks.is_empty() {
+            println!("No frameworks available for '{}'.", language);
         } else {
             for framework in frameworks {
-                println!("  {}", framework);
+                println!("{}", framework);
             }
         }
+
+        return Ok(());
+    }
+
+    // `devora list` → the language status board.
+    if json {
+        let langs: Vec<_> = ROADMAP
+            .iter()
+            .map(|l| {
+                serde_json::json!({
+                    "name": l.name,
+                    "state": l.state,
+                    "note": l.note,
+                })
+            })
+            .collect();
+        let out = serde_json::json!({ "languages": langs });
+        println!("{}", serde_json::to_string_pretty(&out)?);
     } else {
-        println!("Available languages:");
-        let languages = registry.list_languages();
-        if languages.is_empty() {
-            println!("  No languages found. Make sure plugins are set up correctly.");
-        } else {
-            for language in languages {
-                match registry.get_language(language) {
-                    Ok(manifest) => println!("  {} - {}", language, manifest.language.description),
-                    Err(_) => println!("  {}", language),
-                }
-            }
+        for lang in ROADMAP {
+            println!("{:<10} {:<13} {}", lang.state, lang.name, lang.note);
         }
     }
 

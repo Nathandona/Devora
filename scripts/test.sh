@@ -301,11 +301,11 @@ generate_report() {
 ## Test Results
 
 ### Unit Tests
-- Status: $([ -f "$TEST_RESULTS_DIR/unit_tests.log" ] && echo "✅ Passed" || echo "❌ Failed")
+- Status: $([ -f "$TEST_RESULTS_DIR/unit_tests.log" ] && echo "Passed" || echo "Failed")
 - Log: [unit_tests.log](unit_tests.log)
 
 ### Integration Tests
-- Status: $([ -f "$TEST_RESULTS_DIR/integration_test.log" ] && echo "✅ Passed" || echo "❌ Failed")
+- Status: $([ -f "$TEST_RESULTS_DIR/integration_test.log" ] && echo "Passed" || echo "Failed")
 - Log: [integration_test.log](integration_test.log)
 
 ### Code Coverage
@@ -316,20 +316,20 @@ EOF
         echo "- Coverage: ${coverage_percent}%" >> "$report_file"
         echo "- HTML Report: [coverage/html](../coverage/html/)" >> "$report_file"
     else
-        echo "- Status: ⚠️ Not generated" >> "$report_file"
+        echo "- Status: Not generated" >> "$report_file"
     fi
 
     cat >> "$report_file" << EOF
 
 ### Benchmarks
-- Status: $([ -f "$TEST_RESULTS_DIR/benchmarks.log" ] && echo "✅ Completed" || echo "⚠️ Not found")
+- Status: $([ -f "$TEST_RESULTS_DIR/benchmarks.log" ] && echo "Completed" || echo "Not found")
 - Log: [benchmarks.log](benchmarks.log)
 
 ### Linting
-- Status: $([ -f "$TEST_RESULTS_DIR/linting.log" ] && echo "✅ Passed" || echo "❌ Issues found")
+- Status: $([ -f "$TEST_RESULTS_DIR/linting.log" ] && echo "Passed" || echo "Issues found")
 
 ### Security Audit
-- Status: $([ -f "$TEST_RESULTS_DIR/security_audit.log" ] && echo "✅ Passed" || echo "⚠️ Issues found")
+- Status: $([ -f "$TEST_RESULTS_DIR/security_audit.log" ] && echo "Passed" || echo "Issues found")
 - Log: [security_audit.log](security_audit.log)
 
 ## Summary
@@ -342,9 +342,9 @@ EOF
     [ ! -f "$TEST_RESULTS_DIR/integration_test.log" ] && ((failed_tests++))
 
     if [ $failed_tests -eq 0 ]; then
-        echo "🎉 All tests passed!" >> "$report_file"
+        echo "All tests passed!" >> "$report_file"
     else
-        echo "❌ $failed_tests test(s) failed" >> "$report_file"
+        echo "$failed_tests test(s) failed" >> "$report_file"
     fi
 
     log_success "Test report generated: $report_file"
