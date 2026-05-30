@@ -36,7 +36,7 @@ export function Footer() {
             <Link href="#hero" className="inline-flex items-center gap-2">
               <span className="font-mono text-sm font-medium">devora</span>
               <span className="font-mono text-[10px] text-muted-foreground/70 border border-border rounded px-1.5 py-px">
-                v0.1
+                v1.0
               </span>
             </Link>
             <p className="mt-4 text-sm leading-relaxed text-muted-foreground">

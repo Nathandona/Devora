@@ -62,7 +62,7 @@ export function MotionNav() {
         <a href="#hero" className="flex items-center gap-2">
           <span className="font-mono text-sm font-medium tracking-tight">devora</span>
           <span className="font-mono text-[10px] text-muted-foreground/70 border border-border rounded px-1.5 py-px">
-            v0.1
+            v1.0
           </span>
         </a>
 

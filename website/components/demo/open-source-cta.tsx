@@ -57,8 +57,8 @@ export function OpenSourceCTA() {
             variants={fadeRise}
             className="mt-5 text-[15px] leading-relaxed text-muted-foreground max-w-md"
           >
-            Every commit is public. Every plugin lives outside the binary.
-            Pull requests, issues, plugins &mdash; all welcome.
+            Every commit is public. Every plugin lives outside the engine.
+            Pull requests, issues, plugins: all welcome.
           </motion.p>
         </motion.div>
 

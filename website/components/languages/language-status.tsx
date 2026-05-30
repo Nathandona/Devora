@@ -49,16 +49,17 @@ export function LanguageStatus() {
               letterSpacing: '-0.02em',
             }}
           >
-            Languages.
+            Five languages.
             <br />
-            <span className="text-muted-foreground">No calendar.</span>
+            <span className="text-muted-foreground">All stable.</span>
           </motion.h2>
           <motion.p
             variants={fadeRise}
             className="mt-5 text-[15px] leading-relaxed text-muted-foreground max-w-md"
           >
-            Rust ships today. The rest land when they ship. If a language matters
-            to you, the fastest path is a plugin.
+            Rust, C++, Go, Python, and C#. Each one a template away from a
+            project that builds, runs, and tests. Want another? It&rsquo;s a
+            plugin.
           </motion.p>
         </motion.div>
 

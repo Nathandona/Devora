@@ -16,7 +16,7 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: 'Devora - plugin-driven project scaffolding',
   description:
-    'Plugin-driven CLI for generating project boilerplate. Rust ships today. Other languages land when they\'re ready. Open source, MIT.',
+    'Plugin-driven CLI for generating project boilerplate. Rust, C++, Go, Python, and C# all ship today. Open source, MIT.',
 };
 
 export default function RootLayout({
