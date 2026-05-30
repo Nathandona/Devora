@@ -1,0 +1,31 @@
+[framework]
+id = "base"
+name = "Base"
+version = "1.0.0"
+description = "Go module with a stdlib entry point and testing"
+
+[variables]
+description = { description = "Project description", required = false }
+license = { description = "Project license", default = "MIT", required = false }
+module_path = { description = "Go module path", default = "ref:project_slug", required = false }
+go_version = { description = "Go version", default = "1.22", required = false }
+include_tests = { description = "Include a test file", default = true, required = false }
+initialize_git = { description = "Initialize a git repository", default = true, required = false }
+
+# Git init only. No compile or `go fmt` step: scaffolding stays fast and does
+# not require the Go toolchain to be installed (the README documents building).
+[[post_hooks]]
+command = "devora_git_init"
+description = "Initialize git repository"
+condition = "initialize_git == true"
+
+[[conditional_files]]
+path = "main_test.go"
+condition = "include_tests == true"
+description = "Test file, included when tests are enabled"
+
+init_commands = [
+    "go build ./...",
+    "go run .",
+    "go test ./...",
+]

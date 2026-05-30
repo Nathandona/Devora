@@ -1,0 +1,7 @@
+Console.WriteLine(Greeter.Greet("{{ project_name }}"));
+
+/// <summary>Greeting helper, kept public so the test project can exercise it.</summary>
+public static class Greeter
+{
+    public static string Greet(string name) => $"Hello from {name}!";
+}

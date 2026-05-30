@@ -1,0 +1,8 @@
+"""{{ project_name }}."""
+
+__version__ = "0.1.0"
+
+
+def greeting() -> str:
+    """Return the project's greeting message."""
+    return "Hello from {{ project_name }}!"

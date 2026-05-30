@@ -1,0 +1,24 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/bin/
+/{{ project_slug }}
+
+# Test and coverage output
+*.test
+*.out
+coverage.*
+
+# Go workspace and vendor
+go.work
+go.work.sum
+/vendor/
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

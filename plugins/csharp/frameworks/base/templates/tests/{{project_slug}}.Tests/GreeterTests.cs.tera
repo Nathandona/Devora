@@ -1,0 +1,10 @@
+using Xunit;
+
+public class GreeterTests
+{
+    [Fact]
+    public void Greet_ReturnsExpectedMessage()
+    {
+        Assert.Equal("Hello from {{ project_name }}!", Greeter.Greet("{{ project_name }}"));
+    }
+}

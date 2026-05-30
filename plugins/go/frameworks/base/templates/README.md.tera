@@ -1,0 +1,41 @@
+# {{ project_name }}
+{% if description %}
+{{ description }}
+{% endif %}
+A Go project generated with [Devora](https://github.com/Nathandona/Devora).
+
+## Requirements
+
+- Go {{ go_version }} or newer
+
+## Build
+
+```bash
+go build ./...
+```
+
+## Run
+
+```bash
+go run .
+```
+{% if include_tests %}
+## Test
+
+```bash
+go test ./...
+```
+{% endif %}
+## Layout
+
+```
+{{ project_slug }}/
+├─ go.mod
+├─ main.go
+{% if include_tests %}├─ main_test.go
+{% endif %}└─ .gitignore
+```
+
+## License
+
+{% if license %}This project is licensed under the {{ license }} License.{% else %}This project is licensed under the MIT License.{% endif %}

@@ -1,0 +1,11 @@
+package main
+
+import "fmt"
+
+func greeting() string {
+	return fmt.Sprintf("Hello from %s!", "{{ project_name }}")
+}
+
+func main() {
+	fmt.Println(greeting())
+}

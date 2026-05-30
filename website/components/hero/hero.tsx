@@ -25,7 +25,7 @@ export function Hero() {
             <motion.div variants={fadeRise} className="mb-6">
               <span className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
                 <span className="size-1.5 rounded-full bg-foreground/80" />
-                v0.1 · Rust and C++ ship today
+                v1.0 · Five languages, all stable
               </span>
             </motion.div>
 
@@ -48,8 +48,8 @@ export function Hero() {
               className="mt-7 max-w-md text-[15px] leading-relaxed text-muted-foreground"
             >
               Devora is a plugin-driven CLI for generating project boilerplate.
-              Rust and C++ ship today. Other languages land when they&rsquo;re
-              ready, not when a roadmap says so.
+              Rust, C++, Go, Python, and C# all ship today, each one command
+              away from a working project.
             </motion.p>
 
             {/* Install command: OS-aware, quiet, full width */}

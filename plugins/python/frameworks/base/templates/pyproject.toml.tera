@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "{{ project_slug }}"
+version = "0.1.0"
+{% if description %}description = "{{ description }}"
+{% endif %}requires-python = ">={{ python_version }}"
+{% if license %}license = { text = "{{ license }}" }
+{% endif %}readme = "README.md"
+
+[project.scripts]
+{{ project_slug }} = "{{ project_module }}.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

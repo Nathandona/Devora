@@ -1,0 +1,47 @@
+# {{ project_name }}
+{% if description %}
+{{ description }}
+{% endif %}
+A Python project generated with [Devora](https://github.com/Nathandona/Devora).
+
+## Requirements
+
+- Python {{ python_version }} or newer
+
+## Install
+
+```bash
+python -m pip install -e .
+```
+
+## Run
+
+```bash
+python -m {{ project_module }}
+```
+{% if include_tests %}
+## Test
+
+Tests use the standard library `unittest`, so they run with no extra packages.
+
+```bash
+python -m unittest discover -s tests
+```
+{% endif %}
+## Layout
+
+```
+{{ project_slug }}/
+├─ pyproject.toml
+├─ src/
+│  └─ {{ project_module }}/
+│     ├─ __init__.py
+│     └─ __main__.py
+{% if include_tests %}├─ tests/
+│  └─ test_main.py
+{% endif %}└─ .gitignore
+```
+
+## License
+
+{% if license %}This project is licensed under the {{ license }} License.{% else %}This project is licensed under the MIT License.{% endif %}

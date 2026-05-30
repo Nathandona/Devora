@@ -1,0 +1,43 @@
+# {{ project_name }}
+{% if description %}
+{{ description }}
+{% endif %}
+A C# project generated with [Devora](https://github.com/Nathandona/Devora).
+
+## Requirements
+
+- .NET SDK with the `{{ target_framework }}` target installed
+
+## Run
+
+```bash
+dotnet run --project src/{{ project_slug }}
+```
+{% if include_tests %}
+## Test
+
+Tests use [xUnit](https://xunit.net). The first run restores the test packages
+from NuGet; afterwards it runs offline from the local cache.
+
+```bash
+dotnet test tests/{{ project_slug }}.Tests
+```
+{% endif %}
+## Layout
+
+```
+{{ project_slug }}/
+├─ src/
+│  └─ {{ project_slug }}/
+│     ├─ {{ project_slug }}.csproj
+│     └─ Program.cs
+{% if include_tests %}├─ tests/
+│  └─ {{ project_slug }}.Tests/
+│     ├─ {{ project_slug }}.Tests.csproj
+│     └─ GreeterTests.cs
+{% endif %}└─ .gitignore
+```
+
+## License
+
+{% if license %}This project is licensed under the {{ license }} License.{% else %}This project is licensed under the MIT License.{% endif %}

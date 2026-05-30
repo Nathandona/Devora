@@ -110,10 +110,9 @@ devora list
 ```
 stable     rust          1 template
 stable     c++           1 template
-wishlist   go            open to contributions
-wishlist   python        open to contributions
-wishlist   typescript    open to contributions
-wishlist   zig           open to contributions
+stable     go            1 template
+stable     python        1 template
+stable     c#            1 template
 ```
 
 ### List frameworks for a language
@@ -316,16 +315,16 @@ devora/
 
 ## Roadmap
 
-Devora ships Rust and C++ today. Other languages are on the wishlist and open
-to contributions. There is no fixed calendar; run `devora list` for the current
-status board.
+Devora ships Rust, C++, Go, Python, and C# today, each with a single working
+template. Run `devora list` for the current status board. New languages and
+additional frameworks land when they are ready, not when a calendar says so.
 
 ## Contributing
 
 Contributions are welcome. Good places to start:
 
-- New language plugins (Go, Python, TypeScript, Zig)
-- Framework templates for popular stacks
+- New language plugins (TypeScript, Java, Ruby, Zig)
+- Additional frameworks for the existing languages
 - Documentation and guides
 - Tests
 

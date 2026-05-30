@@ -165,3 +165,71 @@ fn generates_multiple_projects() {
         assert_file_exists(&project.join(&format!("{}/src/main.rs", name)));
     }
 }
+
+#[test]
+fn generates_go_module_structure() {
+    let project = TestProject::new();
+    let out = project.run(&["new", "go-demo", "go", "--non-interactive", "--no-hooks"]);
+    assert!(out.success(), "stderr: {}", out.stderr);
+
+    let app = project.join("go-demo");
+    assert_file_exists(&app.join("go.mod"));
+    assert_file_exists(&app.join("main.go"));
+    assert_file_exists(&app.join("main_test.go"));
+    assert_file_exists(&app.join("README.md"));
+
+    let gomod = read_to_string(&app.join("go.mod"));
+    assert!(gomod.contains("module go-demo"));
+}
+
+#[test]
+fn generates_python_src_layout() {
+    let project = TestProject::new();
+    let out = project.run(&["new", "py-demo", "python", "--non-interactive", "--no-hooks"]);
+    assert!(out.success(), "stderr: {}", out.stderr);
+
+    let app = project.join("py-demo");
+    assert_file_exists(&app.join("pyproject.toml"));
+    // project_slug "py-demo" becomes the underscore module "py_demo".
+    assert_file_exists(&app.join("src/py_demo/__init__.py"));
+    assert_file_exists(&app.join("src/py_demo/__main__.py"));
+    assert_file_exists(&app.join("tests/test_main.py"));
+
+    let pyproject = read_to_string(&app.join("pyproject.toml"));
+    assert!(pyproject.contains("name = \"py-demo\""));
+}
+
+#[test]
+fn generates_csharp_console_and_test_project() {
+    let project = TestProject::new();
+    let out = project.run(&["new", "cs-demo", "csharp", "--non-interactive", "--no-hooks"]);
+    assert!(out.success(), "stderr: {}", out.stderr);
+
+    let app = project.join("cs-demo");
+    assert_file_exists(&app.join("src/cs-demo/cs-demo.csproj"));
+    assert_file_exists(&app.join("src/cs-demo/Program.cs"));
+    assert_file_exists(&app.join("tests/cs-demo.Tests/cs-demo.Tests.csproj"));
+    assert_file_exists(&app.join("tests/cs-demo.Tests/GreeterTests.cs"));
+
+    let csproj = read_to_string(&app.join("src/cs-demo/cs-demo.csproj"));
+    assert!(csproj.contains("<TargetFramework>net8.0</TargetFramework>"));
+}
+
+#[test]
+fn csharp_include_tests_false_omits_test_project() {
+    let project = TestProject::new();
+    let out = project.run(&[
+        "new",
+        "cs-no-tests",
+        "csharp",
+        "--var",
+        "include_tests=false",
+        "--non-interactive",
+        "--no-hooks",
+    ]);
+    assert!(out.success(), "stderr: {}", out.stderr);
+
+    let app = project.join("cs-no-tests");
+    assert_file_exists(&app.join("src/cs-no-tests/Program.cs"));
+    assert!(!app.join("tests/cs-no-tests.Tests").exists());
+}

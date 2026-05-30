@@ -1,0 +1,34 @@
+[framework]
+id = "base"
+name = "Base"
+version = "1.0.0"
+description = "C# console app on .NET with an xUnit test project"
+
+[variables]
+description = { description = "Project description", required = false }
+license = { description = "Project license", default = "MIT", required = false }
+target_framework = { description = ".NET target framework", default = "net8.0", required = false, allowed_values = ["net8.0", "net9.0"] }
+include_tests = { description = "Include an xUnit test project", default = true, required = false }
+initialize_git = { description = "Initialize a git repository", default = true, required = false }
+
+# Git init only. No build or restore on generate (the README documents run and
+# test), so scaffolding is fast and does not require the .NET SDK installed.
+[[post_hooks]]
+command = "devora_git_init"
+description = "Initialize git repository"
+condition = "initialize_git == true"
+
+[[conditional_files]]
+path = "tests/{{project_slug}}.Tests/{{project_slug}}.Tests.csproj"
+condition = "include_tests == true"
+description = "Test project file, included when tests are enabled"
+
+[[conditional_files]]
+path = "tests/{{project_slug}}.Tests/GreeterTests.cs"
+condition = "include_tests == true"
+description = "xUnit test, included when tests are enabled"
+
+init_commands = [
+    "dotnet run --project src/{{project_slug}}",
+    "dotnet test tests/{{project_slug}}.Tests",
+]

@@ -41,13 +41,18 @@ impl ContextBuilder {
         let mut context = Map::new();
 
         // Add project-specific built-ins
+        let slug = slugify(project_name);
         context.insert(
             "project_name".to_string(),
             Value::String(project_name.to_string()),
         );
+        context.insert("project_slug".to_string(), Value::String(slug.clone()));
+        // Underscore form, usable as an identifier (e.g. a Python package
+        // directory or import). Template paths can't carry a filter on Windows
+        // (`|`/`"` are illegal in filenames), so this is precomputed here.
         context.insert(
-            "project_slug".to_string(),
-            Value::String(slugify(project_name)),
+            "project_module".to_string(),
+            Value::String(slug.replace('-', "_")),
         );
 
         // Add system built-ins

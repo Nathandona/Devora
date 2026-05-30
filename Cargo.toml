@@ -1,8 +1,8 @@
 [package]
 name = "devora"
-version = "0.1.1"
+version = "1.0.0"
 edition = "2021"
-authors = ["Nathan Donadey <donadeyn@gmail.com>"]
+authors = ["Nathan Donadey <nathan.donadey@epitech.eu>"]
 description = "A universal, modular project scaffolding framework"
 license = "MIT"
 repository = "https://github.com/Nathandona/Devora"

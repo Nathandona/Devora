@@ -41,7 +41,9 @@ fn list_shows_status_board() {
     assert!(out.contains("rust"));
     assert!(out.contains("stable"));
     assert!(out.contains("c++"));
-    assert!(out.contains("wishlist"));
+    assert!(out.contains("go"));
+    assert!(out.contains("python"));
+    assert!(out.contains("c#"));
 }
 
 #[test]

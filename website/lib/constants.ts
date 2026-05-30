@@ -66,10 +66,9 @@ export const TERMINAL_SEQUENCES: TerminalSequence[] = [
       { kind: 'command', text: 'devora list' },
       { kind: 'output',  text: 'stable     rust          1 template' },
       { kind: 'output',  text: 'stable     c++           1 template' },
-      { kind: 'muted',   text: 'wishlist   go            open to contributions' },
-      { kind: 'muted',   text: 'wishlist   python        open to contributions' },
-      { kind: 'muted',   text: 'wishlist   typescript    open to contributions' },
-      { kind: 'muted',   text: 'wishlist   zig           open to contributions' },
+      { kind: 'output',  text: 'stable     go            1 template' },
+      { kind: 'output',  text: 'stable     python        1 template' },
+      { kind: 'output',  text: 'stable     c#            1 template' },
     ],
   },
 ];
@@ -127,10 +126,9 @@ export interface LangRow {
 }
 
 export const LANGUAGES: LangRow[] = [
-  { name: 'Rust',       state: 'stable',   note: 'Single template, full hook system.' },
-  { name: 'C++',        state: 'stable',   note: 'CMake template with vendored doctest tests.' },
-  { name: 'Go',         state: 'wishlist', note: 'Open to contributions.' },
-  { name: 'Python',     state: 'wishlist', note: 'Open to contributions.' },
-  { name: 'TypeScript', state: 'wishlist', note: 'Open to contributions.' },
-  { name: 'Zig',        state: 'wishlist', note: 'Open to contributions.' },
+  { name: 'Rust',   state: 'stable', note: 'Single template, full hook system.' },
+  { name: 'C++',    state: 'stable', note: 'CMake template with vendored doctest tests.' },
+  { name: 'Go',     state: 'stable', note: 'Go module with built-in testing.' },
+  { name: 'Python', state: 'stable', note: 'src layout package with unittest.' },
+  { name: 'C#',     state: 'stable', note: '.NET console app with an xUnit test project.' },
 ];

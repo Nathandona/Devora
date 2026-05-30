@@ -1,0 +1,30 @@
+[framework]
+id = "base"
+name = "Base"
+version = "1.0.0"
+description = "Python package with a src layout and unittest"
+
+[variables]
+description = { description = "Project description", required = false }
+license = { description = "Project license", default = "MIT", required = false }
+python_version = { description = "Minimum Python version", default = "3.9", required = false }
+include_tests = { description = "Include a test file", default = true, required = false }
+initialize_git = { description = "Initialize a git repository", default = true, required = false }
+
+# Git init only. No build or virtualenv step on generate (the README documents
+# install, run, and test), so scaffolding is fast and toolchain-agnostic.
+[[post_hooks]]
+command = "devora_git_init"
+description = "Initialize git repository"
+condition = "initialize_git == true"
+
+[[conditional_files]]
+path = "tests/test_main.py"
+condition = "include_tests == true"
+description = "Test file, included when tests are enabled"
+
+init_commands = [
+    "python -m pip install -e .",
+    "python -m {{ project_module }}",
+    "python -m unittest discover -s tests",
+]

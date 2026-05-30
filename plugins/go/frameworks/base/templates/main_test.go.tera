@@ -1,0 +1,11 @@
+package main
+
+import "testing"
+
+func TestGreeting(t *testing.T) {
+	got := greeting()
+	want := "Hello from {{ project_name }}!"
+	if got != want {
+		t.Errorf("greeting() = %q, want %q", got, want)
+	}
+}

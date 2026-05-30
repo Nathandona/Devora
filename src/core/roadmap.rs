@@ -2,8 +2,8 @@
 //!
 //! This is the single source of truth for the CLI's language roadmap and it
 //! mirrors the website's language table. `stable` languages have a working
-//! plugin embedded in the binary; `paused` and `wishlist` entries are
-//! aspirational and have no (or frozen) plugins.
+//! plugin embedded in the binary. (`paused` and `wishlist` states also exist
+//! for future entries, but every shipped language is currently stable.)
 
 use serde::Serialize;
 
@@ -27,22 +27,17 @@ pub static ROADMAP: &[LangStatus] = &[
     },
     LangStatus {
         name: "go",
-        state: "wishlist",
-        note: "open to contributions",
+        state: "stable",
+        note: "1 template",
     },
     LangStatus {
         name: "python",
-        state: "wishlist",
-        note: "open to contributions",
+        state: "stable",
+        note: "1 template",
     },
     LangStatus {
-        name: "typescript",
-        state: "wishlist",
-        note: "open to contributions",
-    },
-    LangStatus {
-        name: "zig",
-        state: "wishlist",
-        note: "open to contributions",
+        name: "c#",
+        state: "stable",
+        note: "1 template",
     },
 ];
