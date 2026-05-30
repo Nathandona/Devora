@@ -107,7 +107,7 @@
     padding-inline: 1.5rem;
   }
 
-  /* Terminal block bg — slightly deeper than card to feel inset */
+  /* Terminal block bg - slightly deeper than card to feel inset */
   .bg-terminal {
     background-color: oklch(0.05 0 0);
   }

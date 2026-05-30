@@ -1,21 +1,12 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { toast } from 'sonner';
-import { ArrowRight, Copy } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { fadeRise, stagger } from '@/lib/animations';
-import { GITHUB_URL, INSTALL_COMMAND } from '@/lib/constants';
+import { InstallCommand } from '@/components/install/install-command';
+import { GITHUB_URL } from '@/lib/constants';
 
 export function FinalCTA() {
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(INSTALL_COMMAND);
-      toast.success('Copied install command');
-    } catch {
-      toast.error('Could not copy. Long-press to select.');
-    }
-  };
-
   return (
     <section className="relative py-32 border-t border-border">
       <div className="container-tight">
@@ -42,25 +33,11 @@ export function FinalCTA() {
             variants={fadeRise}
             className="mt-5 text-[15px] leading-relaxed text-muted-foreground"
           >
-            Free, MIT, no telemetry. Use it, or read the source first &mdash; we won&rsquo;t mind.
+            Free, MIT, no telemetry. Use it, or read the source first. We won&rsquo;t mind.
           </motion.p>
 
           <motion.div variants={fadeRise} className="mt-10">
-            <button
-              onClick={copy}
-              className="group/copy mx-auto flex w-full max-w-md items-center justify-between gap-3 rounded-md bg-secondary/60 px-3.5 py-3 text-left ring-1 ring-border hover:ring-foreground/30 transition-[box-shadow] duration-200"
-            >
-              <span className="flex items-center gap-2.5 overflow-hidden">
-                <span className="text-muted-foreground/60 font-mono text-xs select-none">$</span>
-                <code className="font-mono text-[13px] truncate text-foreground/90">
-                  {INSTALL_COMMAND}
-                </code>
-              </span>
-              <span className="flex items-center gap-1.5 text-muted-foreground group-hover/copy:text-foreground transition-colors">
-                <Copy className="size-3.5" />
-                <span className="font-mono text-[11px] uppercase tracking-wider">copy</span>
-              </span>
-            </button>
+            <InstallCommand className="mx-auto" />
           </motion.div>
 
           <motion.div variants={fadeRise} className="mt-5">

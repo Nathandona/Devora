@@ -21,7 +21,7 @@ function Stat({
         {label}
       </span>
       <span className="font-medium tabular-nums text-foreground tracking-tight" style={{ fontSize: 'clamp(1.6rem, 3vw, 2rem)' }}>
-        {loading || value == null ? <span className="text-muted-foreground/40">—</span> : value}
+        {loading || value == null ? <span className="text-muted-foreground/40">-</span> : value}
       </span>
     </div>
   );

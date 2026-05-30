@@ -4,7 +4,7 @@ import { GitHubStatsResponse, GitHubStats } from '@/lib/github-types';
 
 // Fallback data for when API fails
 // Conservative fallback used only when the GitHub API is unavailable.
-// No invented stats or contributors — just the real repo identity.
+// No invented stats or contributors - just the real repo identity.
 const fallbackData: GitHubStats = {
   repository: {
     id: 0,

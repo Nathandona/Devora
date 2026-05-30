@@ -1,22 +1,13 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { toast } from 'sonner';
-import { ArrowRight, ArrowUpRight, Copy } from 'lucide-react';
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { TerminalAnimation } from './terminal-animation';
-import { GITHUB_URL, INSTALL_COMMAND } from '@/lib/constants';
+import { InstallCommand } from '@/components/install/install-command';
+import { GITHUB_URL } from '@/lib/constants';
 import { EASE_OUT, fadeRise, stagger } from '@/lib/animations';
 
 export function Hero() {
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(INSTALL_COMMAND);
-      toast.success('Copied install command');
-    } catch {
-      toast.error('Could not copy. Long-press to select.');
-    }
-  };
-
   return (
     <section
       id="hero"
@@ -24,7 +15,7 @@ export function Hero() {
     >
       <div className="container-tight">
         <div className="grid gap-16 lg:grid-cols-[1.05fr_1fr] lg:gap-12 items-center">
-          {/* Left — text */}
+          {/* Left - text */}
           <motion.div
             initial="initial"
             animate="animate"
@@ -57,28 +48,13 @@ export function Hero() {
               className="mt-7 max-w-md text-[15px] leading-relaxed text-muted-foreground"
             >
               Devora is a plugin-driven CLI for generating project boilerplate.
-              Rust ships today. Other languages land when they&rsquo;re ready
-              &mdash; not when a roadmap says so.
+              Rust ships today. Other languages land when they&rsquo;re ready,
+              not when a roadmap says so.
             </motion.p>
 
-            {/* Install command — quiet, full width */}
+            {/* Install command: OS-aware, quiet, full width */}
             <motion.div variants={fadeRise} className="mt-10">
-              <button
-                onClick={copy}
-                className="group/copy w-full max-w-md flex items-center justify-between gap-3 rounded-md bg-secondary/60 px-3.5 py-3 text-left ring-1 ring-border hover:ring-foreground/30 transition-[box-shadow,background-color] duration-200"
-                aria-label="Copy install command"
-              >
-                <span className="flex items-center gap-2.5 overflow-hidden">
-                  <span className="text-muted-foreground/60 font-mono text-xs select-none">$</span>
-                  <code className="font-mono text-[13px] truncate text-foreground/90">
-                    {INSTALL_COMMAND}
-                  </code>
-                </span>
-                <span className="flex items-center gap-1.5 text-muted-foreground group-hover/copy:text-foreground transition-colors">
-                  <Copy className="size-3.5" />
-                  <span className="font-mono text-[11px] uppercase tracking-wider">copy</span>
-                </span>
-              </button>
+              <InstallCommand />
             </motion.div>
 
             {/* CTAs */}
@@ -103,7 +79,7 @@ export function Hero() {
             </motion.div>
           </motion.div>
 
-          {/* Right — terminal */}
+          {/* Right - terminal */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}

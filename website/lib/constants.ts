@@ -1,6 +1,34 @@
 export const INSTALL_COMMAND = 'curl -LsSf https://github.com/Nathandona/Devora/releases/latest/download/devora-installer.sh | sh';
 export const GITHUB_URL = 'https://github.com/Nathandona/Devora';
 export const DOCS_URL = `${GITHUB_URL}#readme`;
+
+// Per-OS install commands. The unix curl works on macOS and Linux; Windows
+// uses the PowerShell installer. Both are published by dist on each release.
+export type InstallTargetId = 'unix' | 'windows';
+
+export interface InstallTarget {
+  id: InstallTargetId;
+  label: string;
+  prompt: string;
+  command: string;
+}
+
+export const INSTALL_TARGETS: InstallTarget[] = [
+  {
+    id: 'unix',
+    label: 'macOS / Linux',
+    prompt: '$',
+    command:
+      'curl -LsSf https://github.com/Nathandona/Devora/releases/latest/download/devora-installer.sh | sh',
+  },
+  {
+    id: 'windows',
+    label: 'Windows',
+    prompt: '>',
+    command:
+      'irm https://github.com/Nathandona/Devora/releases/latest/download/devora-installer.ps1 | iex',
+  },
+];
 export const CONTRIBUTING_URL = `${GITHUB_URL}/blob/main/CONTRIBUTING.md`;
 export const ISSUES_URL = `${GITHUB_URL}/issues`;
 export const GOOD_FIRST_ISSUE_URL = `${GITHUB_URL}/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22`;
@@ -56,7 +84,7 @@ export interface Feature {
 export const FEATURES: Feature[] = [
   {
     title: 'Plugin architecture',
-    body: 'Every language is a self-contained plugin — a manifest plus Tera templates. The engine stays generic; languages never touch its code.',
+    body: 'Every language is a self-contained plugin - a manifest plus Tera templates. The engine stays generic; languages never touch its code.',
     code: [
       'plugins/rust/',
       '├─ manifest.toml',
@@ -77,7 +105,7 @@ export const FEATURES: Feature[] = [
   },
   {
     title: 'Lifecycle hooks',
-    body: 'Run formatters, init git, install deps after generation — declarative, cross-platform, and skippable per run with --no-hooks.',
+    body: 'Run formatters, init git, install deps after generation - declarative, cross-platform, and skippable per run with --no-hooks.',
     code: [
       '# manifest.toml',
       '[[post_hooks]]',
@@ -89,7 +117,7 @@ export const FEATURES: Feature[] = [
   },
 ];
 
-// Language status — replaces the old "roadmap with quarters" framing.
+// Language status - replaces the old "roadmap with quarters" framing.
 export type LangState = 'stable' | 'paused' | 'wishlist';
 
 export interface LangRow {

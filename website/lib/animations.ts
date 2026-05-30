@@ -11,7 +11,7 @@ export const SPRING: Transition = {
   mass: 0.8,
 };
 
-// Soft micro-spring for hovers — almost imperceptible bounce.
+// Soft micro-spring for hovers - almost imperceptible bounce.
 export const HOVER_SPRING: Transition = {
   type: 'spring',
   stiffness: 500,
@@ -45,7 +45,7 @@ export const stagger: Variants = {
   },
 };
 
-// Terminal cursor blink — 530ms feels alive (not the textbook 1s).
+// Terminal cursor blink - 530ms feels alive (not the textbook 1s).
 export const cursorBlink: Variants = {
   animate: {
     opacity: [1, 1, 0, 0],

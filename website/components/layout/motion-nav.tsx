@@ -29,7 +29,7 @@ function StarButton() {
       <span className="hidden sm:inline-flex items-center gap-1 border-l border-border pl-2 ml-1">
         <Star className="size-3 fill-current opacity-60" />
         <span className="font-mono tabular-nums">
-          {loading || stars == null ? '—' : stars}
+          {loading || stars == null ? '-' : stars}
         </span>
       </span>
     </a>
