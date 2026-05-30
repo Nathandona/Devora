@@ -49,7 +49,7 @@ pub async fn execute(args: NewArgs, json: bool) -> Result<()> {
 
     if !json {
         if args.dry_run {
-            println!("Dry run mode — no files will be created");
+            println!("Dry run mode: no files will be created");
         }
         println!("Resolving plugin: {}@{}", language, lang_version);
         println!("Rendering templates …");

@@ -1,4 +1,4 @@
-//! CLI behavior tests — invoke the real binary and assert on its output.
+//! CLI behavior tests: invoke the real binary and assert on its output.
 
 mod common;
 use common::*;

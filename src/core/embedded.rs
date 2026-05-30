@@ -4,7 +4,7 @@ use include_dir::{include_dir, Dir, DirEntry};
 /// Every bundled plugin, baked into the binary at compile time.
 ///
 /// This is what lets `devora` run after `cargo install` from any working
-/// directory — there is no longer a filesystem `plugins/` lookup.
+/// directory; there is no longer a filesystem `plugins/` lookup.
 pub static PLUGINS: Dir<'static> = include_dir!("$CARGO_MANIFEST_DIR/plugins");
 
 /// Read a manifest (or any text file) from the embedded plugin tree.
