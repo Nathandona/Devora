@@ -18,14 +18,32 @@
 
 ### Installation
 
-Install the latest from the repository. Plugins are embedded in the binary, so
-the installed `devora` works from any directory with no extra files:
+Devora ships prebuilt binaries — you do **not** need a Rust toolchain to use it.
+
+macOS / Linux:
+
+```bash
+curl -LsSf https://github.com/Nathandona/Devora/releases/latest/download/devora-installer.sh | sh
+```
+
+Windows (PowerShell):
+
+```powershell
+irm https://github.com/Nathandona/Devora/releases/latest/download/devora-installer.ps1 | iex
+```
+
+These installers (built by [dist](https://github.com/axodotdev/cargo-dist) on
+each tagged release) download the right binary for your platform and put it on
+your PATH.
+
+<details>
+<summary>From source (requires Rust)</summary>
 
 ```bash
 cargo install --git https://github.com/Nathandona/Devora
 ```
 
-> Once published to crates.io this becomes `cargo install devora`.
+</details>
 
 ### Your First Project
 

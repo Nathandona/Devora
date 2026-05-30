@@ -1,4 +1,4 @@
-export const INSTALL_COMMAND = 'cargo install --git https://github.com/Nathandona/Devora';
+export const INSTALL_COMMAND = 'curl -LsSf https://github.com/Nathandona/Devora/releases/latest/download/devora-installer.sh | sh';
 export const GITHUB_URL = 'https://github.com/Nathandona/Devora';
 export const DOCS_URL = `${GITHUB_URL}#readme`;
 export const CONTRIBUTING_URL = `${GITHUB_URL}/blob/main/CONTRIBUTING.md`;

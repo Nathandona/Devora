@@ -57,3 +57,8 @@ toml = "0.8"
 [[bin]]
 name = "devora"
 path = "src/main.rs"
+
+# The profile that 'dist' will build with
+[profile.dist]
+inherits = "release"
+lto = "thin"
